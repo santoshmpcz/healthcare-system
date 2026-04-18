@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org/">
+
+<head>
+	<title>Specialization Edit</title>
+
+	<!-- Bootstrap -->
+	<link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+	<link rel="stylesheet" th:href="@{/webjars/font-awesome/css/all.min.css}">
+
+	<style>
+		body {
+			margin: 0;
+			font-family: 'Segoe UI', sans-serif;
+
+			background:
+				linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25)), /* lighter overlay */
+				url('/images/AavyaShah.png') no-repeat center center fixed;
+
+			background-size: cover;
+			min-height: 100vh;
+
+			display: flex;
+			flex-direction: column;
+		}
+
+		/* ✅ NEW WRAPPER */
+		.main-container {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+		}
+
+		/* Title */
+		.title {
+			text-align: center;
+			color: white;
+			font-size: 36px;
+			font-weight: 600;
+
+			/* ✅ FIX: remove big gap */
+			margin: 10px 0 20px 0;
+		}
+
+		/* Glass Card */
+		.glass-card {
+			width: 700px;
+			padding: 30px;
+
+			border-radius: 12px;
+			background: rgba(255, 255, 255, 0.15);
+
+			backdrop-filter: blur(12px);
+			-webkit-backdrop-filter: blur(12px);
+
+			border: 1px solid rgba(255, 255, 255, 0.2);
+			box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+		}
+
+		/* Form rows */
+		.form-row {
+			display: flex;
+			align-items: center;
+			margin-bottom: 15px;
+		}
+
+		.form-row label {
+			width: 200px;
+			color: #ffffff;  /* white */
+			font-weight: 500;
+		}
+
+		.form-row input,
+		.form-row textarea {
+			flex: 1;
+			padding: 10px;
+			border-radius: 6px;
+			border: 1px solid rgba(255,255,255,0.4);
+			outline: none;
+
+			background: rgba(255, 255, 255, 0.15); /* transparent */
+			color: white; /* text white */
+
+			backdrop-filter: blur(4px);
+		}
+
+		textarea {
+			height: 100px;
+			resize: none;
+		}
+
+		hr {
+			border: 0.5px solid rgba(255, 255, 255, 0.3);
+		}
+
+		/* Buttons */
+		.btn-group-custom {
+			display: flex;
+			gap: 15px;
+			margin-top: 20px;
+		}
+
+		.btn-update {
+			background: #2d6cdf;
+			color: white;
+			border: none;
+			padding: 10px 25px;
+			border-radius: 6px;
+			transition: 0.3s;
+		}
+
+		.btn-update:hover {
+			background: #1e4fbf;
+		}
+
+		.btn-cancel {
+			background: #dcdcdc;
+			color: #333;
+			padding: 10px 25px;
+			border-radius: 6px;
+			text-decoration: none;
+		}
+	</style>
+</head>
+
+<body>
+
+	<!-- HEADER -->
+	<div th:replace="~{fragments/commonui :: header}"></div>
+
+	<!-- MENU -->
+	<div th:replace="~{fragments/commonuser :: menu}"></div>
+
+	<!-- ✅ WRAPPER START -->
+	<div class="main-container">
+
+		<!-- TITLE -->
+		<div class="title">Specialization Edit</div>
+
+		<!-- GLASS CARD -->
+		<div class="glass-card">
+
+			<form th:action="@{/spec/update}" method="POST" th:object="${specialization}">
+
+				<div class="form-row">
+					<label>ID:</label>
+					<input type="text" th:field="*{id}" readonly>
+				</div>
+
+				<hr>
+
+				<div class="form-row">
+					<label>Specialization Code:</label>
+					<input type="text" th:field="*{specCode}">
+				</div>
+
+				<hr>
+
+				<div class="form-row">
+					<label>Name:</label>
+					<input type="text" th:field="*{specName}">
+				</div>
+
+				<hr>
+
+				<div class="form-row">
+					<label>Note:</label>
+					<textarea th:field="*{specNote}"></textarea>
+				</div>
+
+				<hr>
+
+				<div class="btn-group-custom">
+					<button type="submit" class="btn-update">
+						<i class="fa fa-pencil-alt"></i> Update
+					</button>
+
+					<a th:href="@{/spec/all}" class="btn-cancel">Cancel</a>
+				</div>
+
+			</form>
+
+		</div>
+
+	</div>
+	<!-- ✅ WRAPPER END -->
+
+</body>
+
+</html>

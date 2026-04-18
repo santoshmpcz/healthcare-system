@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>All Appointments</title>
+
+	<div th:replace="~{fragments/commonui :: header}"></div>
+
+	<style>
+		/* TABLE STRUCTURE */
+		.appointment-table {
+			table-layout: auto;
+			width: 100%;
+		}
+
+		.doc-name-col {
+			width: 260px;
+		}
+
+		.doc-flex {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.doc-flex span {
+			white-space: nowrap;
+		}
+
+		.appointment-table td {
+			vertical-align: middle;
+			height: 55px;
+		}
+
+		/* PAGINATION */
+		.pagination .page-link {
+			color: #0d6efd;
+			font-weight: 500;
+		}
+
+		.pagination .page-item.active .page-link {
+			background-color: #0d6efd;
+			border-color: #0d6efd;
+			color: white;
+		}
+
+		.pagination .page-item.disabled .page-link {
+			color: #999;
+			pointer-events: none;
+			background-color: #f8f9fa;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div th:replace="~{fragments/commonuser :: menu}"></div>
+
+	<div class="container mt-4">
+		<div class="card shadow-lg border-0">
+
+			<!-- HEADER -->
+			<div class="card-header bg-primary text-center text-white py-3">
+				<h4 class="mb-0 fw-bold">
+					<i class="fa-solid fa-calendar-check me-2"></i>
+					ALL APPOINTMENTS
+					<i class="fa-solid fa-stethoscope ms-2"></i>
+				</h4>
+			</div>
+
+			<!-- BODY -->
+			<div class="card-body">
+				<div class="table-responsive">
+
+					<table
+						class="table table-striped table-hover table-bordered align-middle text-center appointment-table">
+
+						<thead class="table-info">
+							<tr>
+								<th style="width:7%">#</th>
+								<th class="doc-name-col">
+									<i class="fa-solid fa-user-doctor"></i> DOC NAME
+								</th>
+								<th style="width:15%">DATE</th>
+								<th style="width:15%">NO. OF SLOTS</th>
+								<th style="width:23%">DETAILS</th>
+								<th style="width:15%">FEE</th>
+							</tr>
+						</thead>
+
+						<tbody>
+
+							<tr th:each="ob, i : ${page.content}">
+								<td class="fw-bold" th:text="${page.number * page.size + i.count}"></td>
+
+								<td class="doc-name-col text-start ps-3">
+									<div class="doc-flex">
+										<i class="fa-solid fa-user-doctor text-primary"></i>
+										<span th:text="${ob.doctorName}" th:title="${ob.doctorName}"></span>
+									</div>
+								</td>
+
+								<td>
+									<i class="fa-solid fa-calendar-days text-secondary me-1"></i>
+									<span th:text="${ob.date}"></span>
+								</td>
+
+								<td>
+									<span class="badge bg-success fs-6">
+										<i class="fa-solid fa-clock me-1"></i>
+										<span th:text="${ob.noOfSlots}"></span>
+									</span>
+								</td>
+
+								<td class="text-start" th:text="${ob.details}"></td>
+
+								<td class="fw-bold text-warning">
+									<i class="fa-solid fa-indian-rupee-sign"></i>
+									<span th:text="${ob.fee}"></span>
+								</td>
+							</tr>
+
+							<tr th:if="${page.content == null or #lists.isEmpty(page.content)}">
+								<td colspan="6" class="text-danger fw-bold py-4">
+									<i class="fa-solid fa-triangle-exclamation me-2"></i>
+									No Appointments Available
+								</td>
+							</tr>
+
+						</tbody>
+					</table>
+
+				</div>
+
+				<!-- PAGINATION -->
+				<nav th:if="${page.totalPages > 1}" class="mt-4">
+					<ul class="pagination justify-content-center">
+
+						<!-- PREVIOUS -->
+						<li class="page-item" th:classappend="${page.first} ? 'disabled'">
+							<a class="page-link"
+								th:href="@{/appointment/all(page=${page.number - 1},size=${page.size})}">
+								Previous
+							</a>
+						</li>
+
+						<!-- PAGE NUMBERS -->
+						<li class="page-item" th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}"
+							th:classappend="${i == page.number} ? 'active'">
+							<a class="page-link" th:href="@{/appointment/all(page=${i},size=${page.size})}"
+								th:text="${i + 1}">
+							</a>
+						</li>
+
+						<!-- NEXT -->
+						<li class="page-item" th:classappend="${page.last} ? 'disabled'">
+							<a class="page-link"
+								th:href="@{/appointment/all(page=${page.number + 1},size=${page.size})}">
+								Next
+							</a>
+						</li>
+
+					</ul>
+				</nav>
+
+			</div>
+		</div>
+	</div>
+
+</body>
+
+</html>

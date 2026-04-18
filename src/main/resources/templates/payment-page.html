@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<title>Secure Payment</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<!-- Bootstrap -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+	<!-- Razorpay Checkout -->
+	<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+	<style>
+		body {
+			min-height: 100vh;
+			background:
+				linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.35)),
+				url('/images/AavyaShah.png');
+			background-size: cover;
+			background-position: center;
+			background-repeat: no-repeat;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-family: "Segoe UI", sans-serif;
+		}
+
+		.payment-card {
+			width: 100%;
+			max-width: 450px;
+			background: rgba(255, 255, 255, 0.12);
+			backdrop-filter: blur(10px);
+			border-radius: 18px;
+			padding: 30px;
+			color: #fff;
+			box-shadow: 0 10px 35px rgba(0, 0, 0, 0.4);
+			border: 2px solid #2196f3;
+		}
+
+		.amount {
+			font-size: 30px;
+			font-weight: 700;
+			color: #00ff95;
+		}
+
+		.btn-pay {
+			background: linear-gradient(45deg, #00c853, #00e676);
+			border: none;
+			font-weight: 600;
+			transition: 0.3s;
+		}
+
+		.btn-pay:hover {
+			transform: scale(1.03);
+			background: linear-gradient(45deg, #00b248, #00d765);
+		}
+
+		.loading {
+			display: none;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div class="payment-card text-center">
+
+		<h3 class="mb-4">🔒 Secure Appointment Payment</h3>
+
+		<p>
+			<strong>Doctor:</strong>
+			<span th:text="${slot.doctorName}"></span>
+		</p>
+
+		<p>
+			<strong>Date:</strong>
+			<span th:text="${slot.appointmentDate}"></span>
+		</p>
+
+		<div class="amount mb-3">
+			₹<span th:text="${slot.fee}"></span>
+		</div>
+
+		<input type="hidden" id="slotId" th:value="${slot.id}" />
+
+		<button id="payBtn" class="btn btn-pay w-100">
+			Pay Securely
+		</button>
+
+		<div class="loading mt-3" id="loading">
+			Processing payment...
+		</div>
+
+		<small class="d-block mt-4 text-light">
+			Powered by Razorpay • PCI-DSS Secure
+		</small>
+
+	</div>
+
+	<script>
+		const payBtn = document.getElementById("payBtn");
+		const loading = document.getElementById("loading");
+
+		payBtn.addEventListener("click", async () => {
+
+			payBtn.disabled = true;
+			loading.style.display = "block";
+
+			const slotId = document.getElementById("slotId").value;
+
+			try {
+
+				const response = await fetch("/payment/create-order", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/x-www-form-urlencoded"
+					},
+					body: new URLSearchParams({slotId})
+				});
+
+				if (!response.ok) throw new Error("Order creation failed");
+
+				const order = await response.json();
+
+				const options = {
+					key: "rzp_test_xxxxxxxxx",
+					amount: order.amount,
+					currency: "INR",
+					name: "Hospital Appointment",
+					description: "Consultation Payment",
+					order_id: order.orderId,
+
+					handler: async function (resp) {
+
+						await fetch("/payment/verify", {
+							method: "POST",
+							headers: {
+								"Content-Type": "application/json"
+							},
+							body: JSON.stringify({
+								razorpayPaymentId: resp.razorpay_payment_id,
+								razorpayOrderId: resp.razorpay_order_id,
+								razorpaySignature: resp.razorpay_signature,
+								slotId: slotId
+							})
+						});
+
+						window.location.href = "/slots/patient?payment=success";
+					},
+
+					modal: {
+						ondismiss: function () {
+							resetUI();
+							alert("Payment cancelled.");
+						}
+					},
+
+					theme: {
+						color: "#00c853"
+					}
+				};
+
+				const rzp = new Razorpay(options);
+
+				rzp.on('payment.failed', function () {
+					resetUI();
+					alert("Payment failed. Please try again.");
+				});
+
+				rzp.open();
+
+			} catch (e) {
+				console.error(e);
+				resetUI();
+				alert("Unable to start payment.");
+			}
+		});
+
+		function resetUI() {
+			payBtn.disabled = false;
+			loading.style.display = "none";
+		}
+	</script>
+
+</body>
+
+</html>

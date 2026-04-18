@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<!-- SAFE fragment load -->
+	<th:block th:replace="~{fragments/commonui :: header}"></th:block>
+</head>
+
+<body>
+
+	<!-- SAFE menu -->
+	<th:block th:replace="~{fragments/commonui :: menu}"></th:block>
+
+	<div class="container mt-4">
+
+		<!-- Dynamic error title -->
+		<h3 th:text="${errorTitle}">Unable to process request</h3>
+
+		<!-- Dynamic message -->
+		<p th:text="${message}">Something went wrong</p>
+
+		<!-- Request path -->
+		<p><b>Path:</b> <span th:text="${path}"></span></p>
+
+		<!-- Navigation buttons -->
+		<a th:href="@{/spec/all}" class="btn btn-primary">Go to Home</a>
+
+		<!-- Optional -->
+		<!--
+        <a th:href="@{/doctor/all}" class="btn btn-primary">Doctors</a>
+        <a th:href="@{/patient/all}" class="btn btn-primary">Patients</a>
+        <a th:href="@{/appointment/all}" class="btn btn-primary">Appointments</a>
+        -->
+
+	</div>
+
+</body>
+
+</html>

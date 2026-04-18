@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Patient Slot Requests</title>
+
+	<th:block th:replace="~{fragments/commonui :: header}"></th:block>
+
+	<style>
+		body {
+			margin: 0;
+			padding: 0;
+			font-family: 'Segoe UI', sans-serif;
+			background: url('/images/AavyaShah.png') no-repeat center center/cover;
+			min-height: 100vh;
+			color: #fff;
+		}
+
+		.dashboard-card {
+			background: rgba(255, 255, 255, 0.18);
+			backdrop-filter: blur(10px);
+			border: 2px solid rgba(31, 143, 255, 0.6);
+			border-radius: 20px;
+			padding: 25px;
+			margin-top: 30px;
+			margin-bottom: 40px;
+		}
+
+		.page-title {
+			background: linear-gradient(90deg, #008cff, #1f5eff);
+			padding: 12px;
+			text-align: center;
+			border-radius: 12px;
+			font-size: 1.5rem;
+			font-weight: 700;
+			margin-bottom: 25px;
+			color: #fff;
+		}
+
+		.table,
+		.table th,
+		.table td,
+		.table thead th {
+			color: #fff !important;
+			vertical-align: middle;
+		}
+
+		.table {
+			background: transparent !important;
+		}
+
+		.table thead {
+			background: rgba(0, 0, 0, 0.3);
+		}
+
+		.table tbody tr {
+			background: rgba(255, 255, 255, 0.05);
+		}
+
+		.badge-pill {
+			padding: 6px 14px;
+			border-radius: 50px;
+			font-size: 12px;
+			font-weight: 600;
+			color: #fff;
+		}
+
+		.status-accepted {
+			background: #18b64b;
+		}
+
+		.status-rejected {
+			background: #ef2d3d;
+		}
+
+		.status-pending {
+			background: #f0b400;
+			color: #000;
+		}
+
+		.status-cancelled {
+			background: #6b7280;
+		}
+
+		.pay-success {
+			background: #13a538;
+		}
+
+		.pay-failed {
+			background: #dc2626;
+		}
+
+		.pay-initiated {
+			background: #f59e0b;
+		}
+
+		.pay-refund_pending {
+			background: #f97316;
+		}
+
+		.pay-refunded {
+			background: #0ea5e9;
+		}
+
+		.pay-cancelled {
+			background: #6b7280;
+		}
+
+		.btn-custom {
+			padding: 6px 12px;
+			border-radius: 6px;
+			font-size: 13px;
+			color: #fff;
+			border: none;
+			text-decoration: none;
+		}
+
+		.btn-payment {
+			background: #16a34a;
+		}
+
+		.btn-invoice {
+			background: #2563eb;
+		}
+
+		.btn-cancel {
+			background: #d97706;
+		}
+
+		.btn-disabled {
+			background: #6b7280;
+		}
+
+		.action-group {
+			display: flex;
+			gap: 6px;
+			justify-content: center;
+			flex-wrap: wrap;
+		}
+
+		/* PAGINATION */
+		.pagination .page-link {
+			background: rgba(255, 255, 255, 0.15);
+			color: #fff;
+			border: 1px solid rgba(255, 255, 255, 0.3);
+		}
+
+		.pagination .page-item.active .page-link {
+			background: #1f5eff;
+			border-color: #1f5eff;
+			color: #fff;
+		}
+
+		.pagination .page-item.disabled .page-link {
+			background: rgba(255, 255, 255, 0.08);
+			color: #ccc;
+		}
+
+		.empty-msg {
+			text-align: center;
+			padding: 20px;
+			font-size: 18px;
+			font-weight: bold;
+		}
+	</style>
+</head>
+
+<body>
+
+	<th:block th:replace="~{fragments/commonuser :: menu}"></th:block>
+
+	<div class="container">
+		<div class="dashboard-card">
+
+			<div class="page-title">Patient Slot Requests</div>
+
+			<!-- TABLE -->
+			<table class="table text-center" th:if="${list != null and !#lists.isEmpty(list)}">
+				<thead>
+					<tr>
+						<th>#</th>
+						<th>Patient</th>
+						<th>Date</th>
+						<th>Doctor</th>
+						<th>Status</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+
+				<tbody>
+					<tr th:each="ob, i : ${list}">
+						<td th:text="${currentPage * 10 + i.count}"></td>
+
+						<td th:text="${ob.patientFirstName + ' ' + ob.patientLastName}"></td>
+						<td th:text="${ob.appointmentDate}"></td>
+						<td th:text="${ob.doctorFirstName}"></td>
+
+						<td>
+							<span class="badge-pill"
+								th:classappend="'status-' + ${#strings.toLowerCase(ob.status.name())}"
+								th:text="${ob.status}">
+							</span>
+
+							<span class="badge-pill"
+								th:classappend="'pay-' + ${#strings.toLowerCase(ob.paymentStatus.name())}"
+								th:text="${ob.paymentStatus}">
+							</span>
+						</td>
+
+						<td>
+							<div class="action-group">
+
+								<a th:if="${ob.status.name() == 'ACCEPTED' and (ob.paymentStatus.name() == 'INITIATED' or ob.paymentStatus.name() == 'FAILED')}"
+									th:href="@{/payment/pay(id=${ob.id})}" class="btn-custom btn-payment">
+									Pay
+								</a>
+
+								<a th:if="${ob.paymentStatus.name() == 'SUCCESS' or ob.paymentStatus.name() == 'REFUND_PENDING' or ob.paymentStatus.name() == 'REFUNDED'}"
+									th:href="@{/slots/invoice(id=${ob.id})}" target="_blank"
+									class="btn-custom btn-invoice">
+									Invoice
+								</a>
+
+								<form th:if="${ob.status.name() != 'CANCELLED'}" th:action="@{/slots/cancel}"
+									method="post">
+
+									<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+									<input type="hidden" name="id" th:value="${ob.id}" />
+
+									<button type="submit" class="btn-custom btn-cancel">
+										Cancel
+									</button>
+								</form>
+
+								<span th:if="${ob.status.name() == 'CANCELLED'}" class="btn-custom btn-disabled">
+									No Action
+								</span>
+
+							</div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<!-- EMPTY MESSAGE -->
+			<div class="empty-msg" th:if="${list == null or #lists.isEmpty(list)}">
+				No slot requests found.
+			</div>
+
+			<!-- PAGINATION -->
+			<div class="d-flex justify-content-center mt-4" th:if="${totalPages > 1}">
+				<nav>
+					<ul class="pagination">
+
+						<li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+							<a class="page-link" th:href="@{/slots/patient(page=${currentPage - 1})}">
+								Previous
+							</a>
+						</li>
+
+						<li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+							th:classappend="${i == currentPage} ? 'active'">
+							<a class="page-link" th:href="@{/slots/patient(page=${i})}" th:text="${i + 1}">
+							</a>
+						</li>
+
+						<li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+							<a class="page-link" th:href="@{/slots/patient(page=${currentPage + 1})}">
+								Next
+							</a>
+						</li>
+
+					</ul>
+				</nav>
+			</div>
+
+		</div>
+	</div>
+
+</body>
+
+</html>

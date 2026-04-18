@@ -1,0 +1,108 @@
+server:
+  port: 9898
+
+  error:
+    include-message: always          # ✅ SHOW ERROR (fix your issue)
+    include-binding-errors: always   # ✅ SHOW VALIDATION ERRORS
+    include-stacktrace: always       # ✅ SHOW STACKTRACE (TEMPORARY)
+
+  servlet:
+    session:
+      timeout: 60m
+
+  tomcat:
+    max-swallow-size: -1
+    max-http-form-post-size: -1
+    max-parameters: 2000
+
+
+spring:
+  application:
+    name: Santosh Hospital
+
+  main:
+    banner-mode: console
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/userdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
+
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 30000
+      connection-timeout: 20000
+      max-lifetime: 1800000
+      pool-name: SantoshHikariCP
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB        #  FIXED (realistic)
+      max-request-size: 10MB     #  FIXED
+      file-size-threshold: 2MB
+
+  thymeleaf:
+    cache: false   #  dev mode
+
+  jpa:
+    open-in-view: false
+    show-sql: true              #  enable for debugging
+    hibernate:
+      ddl-auto: update          #  use validate in production
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          time_zone: UTC
+
+  web:
+    resources:
+      static-locations:
+        - classpath:/static/
+        - file:///D:/hospital/doctor-images/
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+
+# ================= RAZORPAY =================
+razorpay:
+  key:
+    id: ${RAZORPAY_KEY}
+    secret: ${RAZORPAY_SECRET}
+
+
+# ================= CUSTOM MASTER USER =================
+master:
+  user:
+    name: ${MASTER_NAME:Santosh}
+    email: ${MASTER_EMAIL:santoshtietech@gmail.com}
+
+
+# ================= FILE STORAGE =================
+file:
+  upload-dir: ${UPLOAD_DIR:D:/hospital/uploads/}   # better folder
+
+
+# ================= LOGGING =================
+logging:
+  level:
+    root: INFO
+    org.springframework.web: DEBUG        #  show request issues
+    org.hibernate.SQL: DEBUG              #  show SQL
+    org.hibernate.orm.jdbc.bind: TRACE    #  show values (VERY useful)
+
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} | Santosh Hospital | %-5level | %logger - %msg%n"

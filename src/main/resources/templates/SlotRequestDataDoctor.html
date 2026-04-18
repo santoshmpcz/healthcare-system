@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Doctor Slot Requests</title>
+
+	<!-- Header -->
+	<th:block th:replace="~{fragments/commonui :: header}"></th:block>
+
+	<style>
+		.card {
+			border: none;
+			border-radius: 14px;
+		}
+
+		.card-header {
+			border-radius: 14px 14px 0 0 !important;
+		}
+
+		.badge-status {
+			padding: 6px 14px;
+			border-radius: 20px;
+			font-size: 12px;
+			font-weight: 700;
+			display: inline-block;
+			min-width: 95px;
+		}
+
+		.status-accepted {
+			background: #28a745;
+			color: #fff;
+		}
+
+		.status-rejected {
+			background: #dc3545;
+			color: #fff;
+		}
+
+		.status-pending {
+			background: #ffc107;
+			color: #000;
+		}
+
+		.status-cancelled {
+			background: #6c757d;
+			color: #fff;
+		}
+
+		table td,
+		table th {
+			vertical-align: middle !important;
+		}
+	</style>
+</head>
+
+<body>
+
+	<!-- Menu -->
+	<th:block th:replace="~{fragments/commonuser :: menu}"></th:block>
+
+	<div class="container mt-4">
+
+		<div class="card shadow-lg">
+
+			<!-- Header -->
+			<div class="card-header bg-primary text-center text-white">
+				<h3 class="mb-0">
+					SLOT REQUEST FOR DOCTOR :
+					<span
+						th:text="${session.userOb != null and session.userOb.displayName != null ? session.userOb.displayName : 'Doctor'}"></span>
+				</h3>
+			</div>
+
+			<div class="card-body">
+
+				<!-- Empty -->
+				<div th:if="${list == null or #lists.isEmpty(list)}">
+					<h5 class="text-center text-danger mb-0">
+						No Slot Requests Found
+					</h5>
+				</div>
+
+				<!-- Table -->
+				<div class="table-responsive" th:if="${list != null and !#lists.isEmpty(list)}">
+
+					<table class="table table-hover table-bordered align-middle">
+
+						<thead class="table-info text-center">
+							<tr>
+								<th>#</th>
+								<th>DATE</th>
+								<th>PATIENT</th>
+								<th>STATUS</th>
+							</tr>
+						</thead>
+
+						<tbody>
+
+							<tr th:each="ob, i : ${list}">
+
+								<!-- Serial -->
+								<td class="text-center" th:text="${i.count}">
+								</td>
+
+								<!-- Date -->
+								<td th:text="${not #strings.isEmpty(ob.appointmentDate) ? ob.appointmentDate : 'N/A'}">
+								</td>
+
+								<!-- Patient -->
+								<td th:text="${not #strings.isEmpty(ob.patientName) ? ob.patientName : 'N/A'}">
+								</td>
+
+								<!-- Status -->
+								<td class="text-center">
+
+									<span th:if="${ob.status != null and ob.status.name() == 'ACCEPTED'}"
+										class="badge-status status-accepted">
+										ACCEPTED
+									</span>
+
+									<span th:if="${ob.status != null and ob.status.name() == 'REJECTED'}"
+										class="badge-status status-rejected">
+										REJECTED
+									</span>
+
+									<span th:if="${ob.status != null and ob.status.name() == 'PENDING'}"
+										class="badge-status status-pending">
+										PENDING
+									</span>
+
+									<span th:if="${ob.status != null and ob.status.name() == 'CANCELLED'}"
+										class="badge-status status-cancelled">
+										CANCELLED
+									</span>
+
+								</td>
+
+							</tr>
+
+						</tbody>
+
+					</table>
+
+				</div>
+
+			</div>
+
+		</div>
+
+	</div>
+
+</body>
+
+</html>

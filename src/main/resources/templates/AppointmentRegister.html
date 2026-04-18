@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+	<meta charset="UTF-8">
+	<title>Create Appointment</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<!-- Common Header -->
+	<th:block th:replace="~{fragments/commonui :: header}"></th:block>
+	<style>
+		/* ================= BODY ================= */
+		body {
+			font-family: 'Segoe UI', sans-serif;
+			background: url('/images/AavyaShah.png') no-repeat center center fixed;
+			background-size: cover;
+			color: white;
+		}
+
+		/* ================= CARD ================= */
+		.appointment-card {
+			max-width: 560px;
+			margin: 40px auto;
+			padding: 20px 25px;
+
+			/* ✅ GLASS EFFECT (minor blur) */
+			background: rgba(255, 255, 255, 0.08);
+			backdrop-filter: blur(6px);
+			-webkit-backdrop-filter: blur(6px);
+
+			border-radius: 16px;
+
+			/* ✅ FIXED BORDER */
+			border: 2px solid #2563EB;
+			box-shadow: 0 8px 30px rgba(37, 99, 235, 0.4);
+		}
+
+		/* ================= TITLE ================= */
+		.appointment-title {
+			text-align: center;
+			font-size: 22px;
+			font-weight: 600;
+			padding: 10px;
+			margin-bottom: 15px;
+			border-radius: 8px;
+
+			/* ✅ FIXED GRADIENT */
+			background: linear-gradient(90deg, #08088A, #2563EB);
+			color: white;
+		}
+
+		/* ================= FORM ================= */
+		.form-label {
+			font-size: 14px;
+			font-weight: 600;
+			color: white;
+		}
+
+		.form-control,
+		.form-select {
+			width: 100%;
+			height: 40px;
+			border-radius: 8px;
+
+			background: rgba(255, 255, 255, 0.15);
+
+			/* ✅ BLUE BORDER */
+			border: 1.5px solid #2563EB;
+
+			color: white;
+			font-size: 14px;
+		}
+
+		textarea.form-control {
+			height: 80px;
+			resize: none;
+		}
+
+		/* Placeholder */
+		::placeholder {
+			color: rgba(255, 255, 255, 0.7);
+		}
+
+		/* Dropdown text */
+		select option {
+			color: #08088A;
+		}
+
+		/* ================= FOCUS ================= */
+		.form-control:focus,
+		.form-select:focus {
+			border: 2px solid #08088A;
+			box-shadow: 0 0 8px rgba(56, 189, 248, 0.7);
+			background: rgba(255, 255, 255, 0.2);
+			color: white;
+		}
+
+		/* spacing */
+		.mb-4 {
+			margin-bottom: 12px !important;
+		}
+
+		/* ================= BUTTON ================= */
+		.btn-area {
+			text-align: center;
+			margin-top: 10px;
+		}
+
+		.btn-create {
+			background: linear-gradient(90deg, #22c55e, #16a34a);
+			border: none;
+			color: white;
+			font-size: 15px;
+			padding: 9px 24px;
+			border-radius: 8px;
+			transition: .3s;
+		}
+
+		.btn-create:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 6px 18px rgba(34, 197, 94, .35);
+		}
+
+		/* ================= DATE CALENDAR ICON WHITE ================= */
+		input[type="date"]::-webkit-calendar-picker-indicator {
+			filter: invert(1); /* 🔥 makes icon white */
+			cursor: pointer;
+		}
+		/* ================= SUCCESS ================= */
+		.success-msg {
+			text-align: center;
+			background: rgba(34, 197, 94, 0.2);
+			color: #22c55e;
+			padding: 10px;
+			border-radius: 8px;
+			margin-top: 15px;
+			font-weight: 600;
+			display: none;
+		}
+	</style>
+</head>
+
+<body>
+
+	<!-- Menu -->
+	<th:block th:replace="~{fragments/commonuser :: menu}"></th:block>
+
+	<div class="container">
+
+		<div class="appointment-card">
+
+			<div class="appointment-title">
+				Create Appointment
+			</div>
+
+			<form th:action="@{/appointment/save}" th:object="${appointment}" method="post">
+
+				<!-- Doctor -->
+				<div class="mb-4">
+					<label class="form-label">Doctor</label>
+
+					<select th:field="*{doctorId}" class="form-select" required>
+						<option value="">-- SELECT DOCTOR --</option>
+						<option th:each="ob:${doctors}" th:value="${ob.key}" th:text="${ob.value}">
+						</option>
+					</select>
+
+					<span class="text-danger" th:if="${#fields.hasErrors('doctorId')}" th:errors="*{doctorId}">
+					</span>
+				</div>
+
+				<!-- Date -->
+				<div class="mb-4">
+					<label class="form-label">Date</label>
+
+					<input type="date" id="appointmentDate" th:field="*{date}" class="form-control" required />
+
+					<span class="text-danger" th:if="${#fields.hasErrors('date')}" th:errors="*{date}">
+					</span>
+				</div>
+
+				<!-- Slots -->
+				<div class="mb-4">
+					<label class="form-label">No Of Slots</label>
+
+					<input type="number" th:field="*{noOfSlots}" class="form-control" min="1" required />
+
+					<span class="text-danger" th:if="${#fields.hasErrors('noOfSlots')}" th:errors="*{noOfSlots}">
+					</span>
+				</div>
+
+				<!-- Amount -->
+				<div class="mb-4">
+					<label class="form-label">Amount</label>
+
+					<input type="number" step="0.01" th:field="*{fee}" class="form-control" required />
+
+					<span class="text-danger" th:if="${#fields.hasErrors('fee')}" th:errors="*{fee}">
+					</span>
+				</div>
+
+				<!-- Details -->
+				<div class="mb-4">
+					<label class="form-label">Details</label>
+
+					<textarea th:field="*{details}" class="form-control"></textarea>
+
+					<span class="text-danger" th:if="${#fields.hasErrors('details')}" th:errors="*{details}">
+					</span>
+				</div>
+
+				<!-- Button -->
+				<div class="btn-area">
+					<button type="submit" class="btn-create">
+						Create <i class="fa fa-plus-square"></i>
+					</button>
+				</div>
+
+				<!-- Success Message -->
+				<div id="successMessage" class="success-msg" th:if="${message!=null}" th:text="${message}">
+				</div>
+
+			</form>
+
+		</div>
+	</div>
+
+	<!-- ================= SCRIPT ================= -->
+
+	<script>
+
+		document.addEventListener("DOMContentLoaded", function () {
+
+			/* Disable Past Dates */
+			let today = new Date().toISOString().split("T")[0];
+			document.getElementById("appointmentDate")
+				.setAttribute("min", today);
+
+			/* SUCCESS MESSAGE AUTO HIDE */
+			const msg = document.getElementById("successMessage");
+
+			if (msg) {
+				msg.style.display = "block";
+
+				setTimeout(function () {
+					msg.style.display = "none";
+				}, 3000); // 3 seconds
+			}
+
+		});
+
+	</script>
+
+</body>
+
+</html>

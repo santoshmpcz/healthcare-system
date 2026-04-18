@@ -1,0 +1,158 @@
+<html xmlns:th="https://www.thymeleaf.org/">
+
+<div th:replace="~{fragments/commonui :: header}"></div>
+<div th:replace="~{fragments/commonuser :: menu}"></div>
+
+<div class="container">
+	<div class="card">
+		<div class="card-header bg-primary text-white text-center">
+			<h3>DOCUMENTS PAGE</h3>
+		</div>
+
+		<div class="card-body">
+			<form id="docForm" th:action="@{/doc/upload}" method="POST" enctype="multipart/form-data">
+
+				<!-- Row#1 -->
+				<div class="row mb-3">
+					<div class="col-3">
+						<label>ID</label>
+					</div>
+					<div class="col-4">
+						<input type="text" name="docId" id="docId" class="form-control" th:value="${idVal}" readonly />
+					</div>
+					<div class="col-5">
+						<span id="docIdError"></span>
+					</div>
+				</div>
+
+				<!-- Row#2 -->
+				<div class="row mb-3">
+					<div class="col-3">
+						<label>DOCUMENT</label>
+					</div>
+					<div class="col-4">
+						<input type="file" name="docOb" id="docOb" class="form-control" />
+					</div>
+					<div class="col-5">
+						<span id="docObError"></span>
+					</div>
+				</div>
+
+				<button type="submit" class="btn btn-success">
+					UPLOAD <i class="fa fa-cloud-upload"></i>
+				</button>
+
+			</form>
+
+			<hr />
+
+			<table class="table table-hover">
+				<tr class="bg-info text-white">
+					<th>FILE NAME</th>
+					<th>OPERATIONS</th>
+				</tr>
+
+				<tr th:each="ob:${list}">
+					<td th:text="${ob[1]}"></td>
+					<td>
+						<a th:href="@{/doc/delete(id=${ob[0]})}" class="btn btn-danger">
+							DELETE <i class="fa fa-trash-o"></i>
+						</a>
+						|
+						<a th:href="@{/doc/download(id=${ob[0]})}" class="btn btn-warning">
+							DOWNLOAD <i class="fa fa-cloud-download"></i>
+						</a>
+					</td>
+				</tr>
+			</table>
+
+		</div>
+
+		<div class="card-footer bg-success text-white" th:if="${message!=null}">
+			<span th:text="${message}"></span>
+		</div>
+
+	</div>
+</div>
+
+<!-- ================= JAVASCRIPT ================= -->
+<script>
+	$(document).ready(function () {
+
+		$("#docObError").hide();
+		var docObError = false;
+
+		// ===== Required Validation =====
+		function validate_docObRequired() {
+			var val = $("#docOb").val();
+
+			if (val === '') {
+				$("#docObError").show();
+				$("#docObError").html("Please select a file!");
+				$("#docObError").css('color', 'red');
+				docObError = false;
+			} else {
+				docObError = true;
+			}
+			return docObError;
+		}
+
+		// ===== File Validation =====
+		function validate_docOb(file) {
+
+			if (!file) return false;
+
+			var fname = file.name;
+			var fsize = file.size; // bytes
+			var fext = fname.substring(fname.lastIndexOf(".") + 1).toLowerCase();
+
+			var allowedExt = ["png", "jpg", "jpeg", "doc", "docx", "pdf", "zip"];
+
+			// Extension check
+			if ($.inArray(fext, allowedExt) === -1) {
+				$("#docObError").show();
+				$("#docObError").html("Allowed files: " + allowedExt.join(", "));
+				$("#docObError").css('color', 'red');
+				docObError = false;
+
+				// Minimum size (10KB)
+			} else if (fsize < 1024 * 10) {
+				$("#docObError").show();
+				$("#docObError").html("File size must be at least 10KB");
+				$("#docObError").css('color', 'red');
+				docObError = false;
+
+				// Maximum size (10MB)
+			} else if (fsize > 1024 * 1024 * 10) {
+				$("#docObError").show();
+				$("#docObError").html("File size max is 10MB");
+				$("#docObError").css('color', 'red');
+				docObError = false;
+
+			} else {
+				$("#docObError").hide();
+				docObError = true;
+			}
+
+			return docObError;
+		}
+
+		// ===== On File Change =====
+		$("#docOb").change(function () {
+			validate_docOb(this.files[0]);
+		});
+
+		// ===== On Form Submit =====
+		$("#docForm").submit(function () {
+			validate_docObRequired();
+			validate_docOb($("#docOb")[0].files[0]);
+
+			return docObError;
+		});
+
+	});
+</script>
+
+</body>
+
+</html>

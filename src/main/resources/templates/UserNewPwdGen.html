@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>New Password Generator</title>
+
+	<th:block th:replace="~{fragments/commonui :: header}"></th:block>
+
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+	<style>
+		html,
+		body {
+			height: 100%;
+			margin: 0;
+		}
+
+		body {
+			background: url('/images/AavyaShah.png') no-repeat center center;
+			background-size: cover;
+			font-family: 'Segoe UI', sans-serif;
+		}
+
+		.overlay {
+			background: rgba(0, 0, 0, 0.3);
+			min-height: 100vh;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.card-custom {
+			width: 520px;
+			border-radius: 20px;
+			background: rgba(255, 255, 255, 0.25);
+			backdrop-filter: blur(15px);
+			padding: 30px;
+			text-align: center;
+			border: 1px solid rgba(255, 255, 255, 0.4);
+			box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+		}
+
+		.title {
+			color: #1e3c72;
+			font-weight: 700;
+		}
+
+		.subtitle {
+			color: #1e3c72;
+			margin-bottom: 25px;
+		}
+
+		.input-group {
+			display: flex;
+			align-items: center;
+			background: white;
+			border-radius: 12px;
+			overflow: hidden;
+			box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+		}
+
+		.input-group-text {
+			background: white;
+			border: none;
+			padding: 0 15px;
+			display: flex;
+			align-items: center;
+			color: #666;
+		}
+
+		.input-group-text i {
+			font-size: 16px;
+			color: #888;
+		}
+
+		.form-control {
+			border: none;
+			height: 50px;
+			padding-left: 10px;
+			flex: 1;
+		}
+
+		.form-control:focus {
+			outline: none;
+			box-shadow: none;
+		}
+
+		.btn-generate {
+			background: linear-gradient(135deg, #28a745, #2ecc71);
+			color: white;
+			border: none;
+			padding: 12px 40px;
+			font-size: 18px;
+			border-radius: 10px;
+			margin-top: 20px;
+			transition: 0.3s;
+		}
+
+		.btn-generate:hover {
+			transform: scale(1.05);
+		}
+
+		/* ✅ SUCCESS MESSAGE */
+		.success-msg {
+			margin-top: 20px;
+			padding: 14px;
+			border-radius: 12px;
+			color: #155724;
+			font-weight: 700;
+			font-size: 18px;
+			background-color: #d4edda;
+			border: 1px solid #c3e6cb;
+			text-align: center;
+		}
+
+		.features {
+			margin-top: 25px;
+			padding: 12px 20px;
+			border-radius: 30px;
+			background: #e5e5e5;
+			display: flex;
+			justify-content: space-between;
+			font-size: 14px;
+		}
+
+		.feature-item {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+		}
+
+		.fa-check {
+			color: green;
+		}
+
+		.fa-lock {
+			color: goldenrod;
+		}
+
+		.fa-clipboard {
+			color: #28a745;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div th:replace="~{fragments/commonuser :: menu}"></div>
+
+	<div class="overlay">
+		<div class="card-custom">
+
+			<h2 class="title">New Password Generator</h2>
+			<p class="subtitle">Enter your email to generate a new secure password.</p>
+
+			<form th:action="@{/user/genNewPwd}" method="POST">
+				<div class="input-group">
+					<span class="input-group-text">
+						<i class="fa fa-envelope"></i>
+					</span>
+					<input type="email" name="email" class="form-control" placeholder="Enter Your Email" required>
+				</div>
+
+				<button type="submit" class="btn btn-generate">
+					Generate
+				</button>
+			</form>
+
+			<!-- ✅ SUCCESS MESSAGE -->
+			<div id="successMsg" th:if="${message != null}" class="success-msg">
+				<span th:text="${message}"></span>
+			</div>
+
+			<div class="features">
+				<div class="feature-item">
+					<i class="fa fa-check"></i> Strong & Unique
+				</div>
+				<div class="feature-item">
+					<i class="fa fa-lock"></i> Encrypted & Safe
+				</div>
+				<div class="feature-item">
+					<i class="fa fa-clipboard"></i> Easy to Copy
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+	<script>
+		// ✅ AUTO HIDE AFTER 3 SECONDS
+		window.addEventListener("load", function () {
+			const msg = document.getElementById("successMsg");
+
+			if (msg) {
+				setTimeout(() => {
+					msg.style.transition = "opacity 0.5s ease";
+					msg.style.opacity = "0";
+
+					setTimeout(() => msg.style.display = "none", 500);
+				}, 3000);
+			}
+		});
+	</script>
+
+</body>
+
+</html>

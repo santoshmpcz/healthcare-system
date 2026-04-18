@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Doctor Registration</title>
+
+	<th:block th:replace="~{fragments/commonui :: header}"></th:block>
+
+	<style>
+		html,
+		body {
+			height: 100%;
+			margin: 0;
+		}
+
+		body {
+			display: flex;
+			flex-direction: column;
+			background: url('/images/santoshHospital.jpeg') no-repeat center center fixed;
+			background-size: cover;
+			font-family: 'Segoe UI', sans-serif;
+		}
+
+		.app-header {
+			background: #0F0975;
+			color: white;
+			text-align: center;
+			padding: 12px;
+			font-weight: bold;
+			font-size: 22px;
+			box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+			margin-top: 15px;
+		}
+
+
+		.doctor-list-link {
+			color: #ffffff !important;
+			/* ✅ Force white color */
+			text-decoration: none;
+			font-size: 16px;
+			font-weight: 600;
+			padding: 6px 12px;
+			border-radius: 8px;
+			transition: all 0.3s ease;
+		}
+
+		.doctor-list-link:hover {
+			color: #ffffff !important;
+			/* ✅ Stay white on hover */
+			background: rgba(255, 255, 255, 0.2);
+			/* subtle hover effect */
+		}
+
+		.marquee-bar {
+			color: white;
+			padding: 6px;
+			font-weight: bold;
+		}
+
+		.screen-wrapper {
+			flex: 1;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			padding: 20px;
+		}
+
+		/* ✅ FULLY TRANSPARENT CARD */
+		.form-card {
+			width: 100%;
+			max-width: 1200px;
+			padding: 35px;
+			background: transparent !important;
+			border-radius: 25px;
+			border: 2px solid rgba(255, 255, 255, 0.6);
+			box-shadow: none !important;
+			transform: none !important;
+			backdrop-filter: none !important;
+			transition: none;
+		}
+
+		label {
+			font-weight: bold;
+			color: #0033cc;
+			margin-bottom: 6px;
+		}
+
+		.form-control {
+			background: transparent !important;
+			border-radius: 12px;
+			border: 2px solid rgba(255, 255, 255, 0.7);
+			height: 42px;
+			color: #ff1493 !important;
+			font-weight: 900;
+			font-size: 15px;
+		}
+
+		.form-control:focus {
+			border: 2px solid #0033cc !important;
+			box-shadow: 0 0 8px #0033cc !important;
+			color: #ff1493 !important;
+		}
+
+		::placeholder {
+			color: #ff1493 !important;
+			font-weight: 900;
+		}
+
+		.row {
+			margin-left: 0 !important;
+			margin-right: 0 !important;
+			--bs-gutter-x: 0 !important;
+			margin-bottom: 12px;
+		}
+
+		.gender-box {
+			height: 42px;
+			display: flex;
+			align-items: center;
+			gap: 25px;
+			color: white;
+			font-weight: bold;
+		}
+
+		input[type="radio"] {
+			accent-color: #ff1493;
+			transform: scale(1.2);
+		}
+
+		input[type="file"] {
+			background: transparent !important;
+			color: #ff1493;
+			font-weight: 900;
+			border: 2px solid rgba(255, 255, 255, 0.7);
+			height: 42px;
+		}
+
+		#imagePreview {
+			display: none;
+			width: 110px;
+			height: 110px;
+			object-fit: cover;
+			border-radius: 50%;
+			border: 2px solid white;
+		}
+
+		.camera-box {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			width: 42px;
+			height: 42px;
+			border-radius: 10px;
+			border: 2px solid white;
+			cursor: pointer;
+			color: white;
+			font-size: 18px;
+		}
+
+		.btn-group-custom {
+			display: flex;
+			justify-content: center;
+			gap: 25px;
+		}
+
+		.btn-submit {
+			background: linear-gradient(to right, #00c6ff, #0072ff);
+			color: black;
+			border: none;
+			padding: 12px 40px;
+			border-radius: 30px;
+			font-weight: bold;
+		}
+
+		.btn-reset {
+			background: #bfbfbf;
+			color: black;
+			border: none;
+			padding: 12px 40px;
+			border-radius: 30px;
+			font-weight: bold;
+		}
+
+		.app-footer {
+			margin-top: auto;
+			background: #0F0975;
+			color: white;
+			text-align: center;
+			padding: 10px;
+			font-weight: bold;
+		}
+
+		.success-message {
+			text-align: center;
+			margin: 15px auto;
+			font-size: 24px;
+			font-weight: 900;
+			color: #00cc00;
+		}
+
+		.error-message {
+			text-align: center;
+			margin: 10px auto;
+			font-size: 18px;
+			font-weight: bold;
+			color: red;
+		}
+	</style>
+</head>
+
+<body>
+
+	<!-- ✅ HEADER -->
+	<div class="app-header d-flex justify-content-between align-items-center">
+
+		<div class="header-left">
+			<a th:href="@{/doctor/all}" class="doctor-list-link">
+				Doctor List
+			</a>
+		</div>
+
+		<div class="header-title">
+			Doctor Registration
+		</div>
+
+		<div></div>
+	</div>
+
+	<div class="marquee-bar">
+		<marquee>Welcome to Santosh Hospital Doctor Registration Portal</marquee>
+	</div>
+	<div class="screen-wrapper">
+		<div class="form-card">
+
+			<form th:action="@{/doctor/save}" th:object="${doctor}" method="post" enctype="multipart/form-data">
+
+				<input type="hidden" th:field="*{id}" />
+
+				<!-- ROW 1 -->
+				<div class="row">
+					<div class="col-md-3">
+						<label>FIRST NAME</label>
+						<input type="text" class="form-control" th:field="*{firstName}" placeholder="Enter First Name">
+					</div>
+					<div class="col-md-3">
+						<label>MIDDLE NAME</label>
+						<input type="text" class="form-control" th:field="*{middleName}"
+							placeholder="Enter Middle Name">
+					</div>
+					<div class="col-md-3">
+						<label>LAST NAME</label>
+						<input type="text" class="form-control" th:field="*{lastName}" placeholder="Enter Last Name">
+					</div>
+					<div class="col-md-3">
+						<label>EMAIL</label>
+						<input type="email" class="form-control" th:field="*{email}" placeholder="Enter Email">
+					</div>
+				</div>
+
+				<!-- ROW 2 -->
+				<div class="row">
+					<div class="col-md-3">
+						<label>MOBILE</label>
+						<input type="text" class="form-control" th:field="*{mobile}" placeholder="Enter Mobile">
+					</div>
+					<div class="col-md-3">
+						<label>DEGREE</label>
+						<input type="text" class="form-control" th:field="*{degree}" placeholder="Enter Degree">
+					</div>
+					<div class="col-md-3">
+						<label>ROOM NO</label>
+						<input type="number" class="form-control" th:field="*{roomNo}" placeholder="Enter Room Number">
+					</div>
+					<div class="col-md-3">
+						<label>EXPERIENCE</label>
+						<input type="number" class="form-control" th:field="*{experience}" placeholder="Enter Experience">
+					</div>
+				</div>
+
+				<!-- ROW 3 -->
+				<div class="row">
+					<div class="col-md-3">
+						<label>SALARY</label>
+						<input type="number" class="form-control" th:field="*{salary}" placeholder="Enter Salary">
+					</div>
+
+					<div class="col-md-3">
+						<label>SPECIALIZATION</label>
+						<select th:field="*{specializationId}" class="form-control">
+							<option value="">-SELECT-</option>
+							<option th:each="ob : ${specList}" th:value="${ob.id}" th:text="${ob.specName}">
+							</option>
+						</select>
+					</div>
+
+					<div class="col-md-3">
+						<label>ADDRESS</label>
+						<input type="text" class="form-control" th:field="*{address}" placeholder="Enter Address">
+					</div>
+					<div class="col-md-3">
+						<label>HOBBIES</label>
+						<input type="text" class="form-control" th:field="*{hobbies}" placeholder="Enter Hobbies">
+					</div>
+				</div>
+
+				<!-- ROW 4 -->
+				<div class="row">
+					<div class="col-md-3">
+						<label>BLOCK</label>
+						<input type="text" class="form-control" th:field="*{block}" placeholder="Enter Block">
+					</div>
+					<div class="col-md-3">
+						<label>DISTRICT</label>
+						<input type="text" class="form-control" th:field="*{district}" placeholder="Enter District">
+					</div>
+					<div class="col-md-3">
+						<label>COUNTRY</label>
+						<input type="text" class="form-control" th:field="*{country}" placeholder="Enter Country">
+					</div>
+					<div class="col-md-3">
+						<label>NATIONALITY</label>
+						<input type="text" class="form-control" th:field="*{nationality}"
+							placeholder="Enter Nationality">
+					</div>
+				</div>
+
+				<!-- ROW 5 -->
+				<div class="row">
+					<div class="col-md-3">
+						<label>NOTE</label>
+						<input type="text" class="form-control" th:field="*{note}" placeholder="Enter Note">
+					</div>
+
+					<div class="col-md-4">
+						<label>GENDER</label>
+						<div class="gender-box">
+							<label><input type="radio" th:field="*{gender}" value="Male"> MALE</label>
+							<label><input type="radio" th:field="*{gender}" value="Female"> FEMALE</label>
+							<label><input type="radio" th:field="*{gender}" value="Other"> OTHER</label>
+						</div>
+					</div>
+
+					<!--	Camera-->
+
+					<div class="col-md-2 text-center">
+						<input type="file" id="fileInput" name="file" accept="image/*" onchange="previewImage(event)"
+							hidden>
+						<label for="fileInput" class="camera-box">
+							<i class="fa fa-camera"></i>
+						</label>
+					</div>
+
+					<div class="col-md-3 d-flex align-items-center">
+						<img id="imagePreview" />
+					</div>
+				</div>
+
+				<div class="text-center mt-4 btn-group-custom">
+					<button type="submit" class="btn-submit">Register</button>
+					<button type="reset" class="btn-reset">Reset</button>
+				</div>
+
+			</form>
+		</div>
+	</div>
+
+	<div id="successMessage" th:if="${successMessage}" class="success-message" th:text="${successMessage}"></div>
+	<div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
+
+	<div class="app-footer">
+		© <span id="year"></span> Santosh Hospital | All Rights Reserved
+	</div>
+
+	<script>
+		function previewImage(event) {
+			const input = event.target;
+			const preview = document.getElementById('imagePreview');
+
+			if (input.files && input.files[0]) {
+				const reader = new FileReader();
+				reader.onload = function (e) {
+					preview.src = e.target.result;
+					preview.style.display = 'block';
+				};
+				reader.readAsDataURL(input.files[0]);
+			}
+		}
+
+		document.getElementById("year").textContent = new Date().getFullYear();
+
+		window.onload = function () {
+			const msg = document.getElementById("successMessage");
+			if (msg) {
+				setTimeout(function () {
+					msg.style.transition = "opacity 0.5s ease";
+					msg.style.opacity = "0";
+					setTimeout(() => {
+						msg.style.display = "none";
+					}, 500);
+				}, 3000);
+			}
+		};
+	</script>
+
+</body>
+
+</html>

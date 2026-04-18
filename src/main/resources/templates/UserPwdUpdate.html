@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>User New Password</title>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+	<style>
+		body {
+			margin: 0;
+			height: 100vh;
+			font-family: 'Segoe UI', sans-serif;
+			background:
+				linear-gradient(rgba(0, 0, 0, .45), rgba(0, 0, 0, .45)),
+				url('/images/AavyaShah.png');
+			background-size: cover;
+			background-position: center;
+			background-attachment: fixed;
+		}
+
+		.main-container {
+			height: 100vh;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+
+		.password-card {
+			width: 520px;
+			border-radius: 18px;
+			background: rgba(255, 255, 255, .15);
+			backdrop-filter: blur(20px);
+			box-shadow: 0 25px 60px rgba(0, 0, 0, .35);
+			border: 1px solid rgba(255, 255, 255, .3);
+			padding: 45px;
+			color: white;
+		}
+
+		.card-title {
+			text-align: center;
+			font-size: 28px;
+			font-weight: 700;
+			margin-bottom: 35px;
+		}
+
+		.input-box {
+			background: rgba(255, 255, 255, .2);
+			border-radius: 10px;
+			padding: 14px 16px;
+			display: flex;
+			align-items: center;
+			margin-bottom: 15px;
+		}
+
+		.input-box input {
+			border: none;
+			background: transparent;
+			outline: none;
+			color: white;
+			width: 100%;
+			font-size: 17px;
+		}
+
+		.input-box input::placeholder {
+			color: #eee;
+		}
+
+		.eye {
+			cursor: pointer;
+			font-size: 20px;
+			margin-left: 10px;
+		}
+
+		.error-msg {
+			font-size: 14px;
+			color: #ffd2d2;
+			margin-bottom: 10px;
+		}
+
+		.match-success {
+			color: #9cffc6;
+			font-weight: 600;
+			font-size: 14px;
+			margin-bottom: 10px;
+		}
+
+		/* ✅ SUCCESS MESSAGE STYLE */
+		.success-msg {
+			color: #00ff88;
+			font-weight: bold;
+			font-size: 16px;
+			text-align: center;
+			margin-top: 10px;
+		}
+
+		.btn-update {
+			width: 100%;
+			border: none;
+			padding: 14px;
+			border-radius: 10px;
+			font-size: 18px;
+			font-weight: 600;
+			background: linear-gradient(135deg, #00c6ff, #0072ff);
+			color: white;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div th:replace="~{fragments/commonui :: header}"></div>
+	<div th:replace="~{fragments/commonuser :: menu}"></div>
+
+	<div class="main-container">
+
+		<div class="password-card">
+
+			<div class="card-title">
+				<i class="bi bi-shield-lock"></i> Update Password
+			</div>
+
+			<form id="pwdForm" method="post" th:action="@{/user/pwdUpdate}">
+
+				<div class="input-box">
+					<i class="bi bi-lock-fill"></i>
+					<input type="password" id="pwd1" name="password" placeholder="New Password">
+					<i class="bi bi-eye-slash eye" id="togglePwd1"></i>
+				</div>
+
+				<div id="pwd1Error" class="error-msg"></div>
+
+				<div class="input-box">
+					<i class="bi bi-lock-fill"></i>
+					<input type="password" id="pwd2" name="repassword" placeholder="Confirm Password">
+					<i class="bi bi-eye-slash eye" id="togglePwd2"></i>
+				</div>
+
+				<div id="pwd2Error" class="error-msg"></div>
+				<div id="matchSuccess" class="match-success"></div>
+
+				<button class="btn-update">
+					<i class="bi bi-check-circle"></i> Update Password
+				</button>
+
+			</form>
+
+			<!-- ✅ SUCCESS MESSAGE WITH ID -->
+			<div id="successMsg" class="success-msg" th:if="${message!=null}">
+				<span th:text="${message}"></span>
+			</div>
+
+		</div>
+	</div>
+
+	<script>
+
+		$(function () {
+
+			$("#pwd1Error,#pwd2Error,#matchSuccess").hide();
+
+			let e1 = false, e2 = false;
+
+			let exp = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&^#_+\-])[A-Za-z\d@$!%*?&^#_+\-]{8,20}$/;
+
+			function validate1() {
+				let val = $("#pwd1").val();
+
+				if (val === "") {
+					$("#pwd1Error").show().html("Password required");
+					e1 = false;
+				}
+				else if (!exp.test(val)) {
+					$("#pwd1Error").show().html(
+						"8-20 chars, Uppercase, lowercase, number & symbol required"
+					);
+					e1 = false;
+				}
+				else {
+					$("#pwd1Error").hide();
+					e1 = true;
+				}
+				validate2();
+			}
+
+			function validate2() {
+				let p1 = $("#pwd1").val();
+				let p2 = $("#pwd2").val();
+
+				if (p2 === "") {
+					$("#pwd2Error").hide();
+					$("#matchSuccess").hide();
+					e2 = false;
+				}
+				else if (p1 !== p2) {
+					$("#pwd2Error").show().html("Passwords do not match");
+					$("#matchSuccess").hide();
+					e2 = false;
+				}
+				else {
+					$("#pwd2Error").hide();
+					$("#matchSuccess").show().html("✔ Passwords match");
+					e2 = true;
+				}
+			}
+
+			function togglePassword(input, icon) {
+				$(icon).click(function () {
+					let type = $(input).attr("type") === "password" ? "text" : "password";
+					$(input).attr("type", type);
+					$(this).toggleClass("bi-eye");
+					$(this).toggleClass("bi-eye-slash");
+				});
+			}
+
+			togglePassword("#pwd1", "#togglePwd1");
+			togglePassword("#pwd2", "#togglePwd2");
+
+			$("#pwd1").keyup(validate1);
+			$("#pwd2").keyup(validate2);
+
+			$("#pwdForm").submit(function () {
+				validate1();
+				validate2();
+				return e1 && e2;
+			});
+
+			/* ✅ AUTO HIDE AFTER 3 SECONDS */
+			let msg = $("#successMsg");
+			if (msg.length) {
+				setTimeout(function () {
+					msg.fadeOut(500);
+				}, 3000);
+			}
+
+		});
+
+	</script>
+
+</body>
+
+</html>

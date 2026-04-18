@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Edit Patient</title>
+
+	<style>
+		body {
+			margin: 0;
+			padding: 0;
+			min-height: 100vh;
+			background-image: url('/images/Asmita.jpg');
+			background-repeat: no-repeat;
+			background-size: 100% auto;
+			background-position: center 30%;
+			background-attachment: fixed;
+			font-family: Arial, sans-serif;
+		}
+
+		.container {
+			max-width: 1200px;
+			margin: 20px auto;
+		}
+
+		.card {
+					background: transparent !important;
+					border: 3px solid rgb(0, 64, 128);   /* BLUE BORDER */
+					border-radius: 14px;
+					margin-top: 15px;
+					box-shadow: 0 0 15px rgba(13,110,253,0.5);
+				}
+
+				input[type="date"]::-webkit-calendar-picker-indicator {
+				    filter: invert(1);
+				    cursor: pointer;
+				}
+		.card-header,
+		.card-footer {
+			background: #0F0975 !important;
+			color: white;
+			text-align: center;
+			padding: 12px;
+		}
+
+		.card-body {
+			padding: 20px;
+		}
+
+		label {
+			color: white;
+			font-weight: 600;
+		}
+
+		.form-row {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 15px;
+			margin-bottom: 10px;
+		}
+
+		.form-group {
+			flex: 1 1 calc(25% - 15px);
+			min-width: 200px;
+		}
+
+		.form-control {
+			width: 100%;
+			padding: 8px;
+			border-radius: 12px;
+			border: 2px solid rgba(255, 255, 255, 0.7);
+			height: 42px;
+			color: #ff1493 !important;
+			font-weight: 900;
+			background: transparent !important;
+		}
+
+		.msg-success {
+			margin-top: 15px;
+			text-align: center;
+			font-weight: bold;
+			font-size: 18px;
+			color: #00ff66;
+		}
+
+		.msg-warning {
+			margin-top: 15px;
+			text-align: center;
+			font-weight: bold;
+			font-size: 18px;
+			color: #ffcc00;
+		}
+
+		.msg-error {
+			margin-top: 15px;
+			text-align: center;
+			font-weight: bold;
+			font-size: 18px;
+			color: #ff3333;
+		}
+
+		.btn-success {
+			background: #28a745;
+			padding: 8px 20px;
+			color: white;
+			border: none;
+			border-radius: 6px;
+		}
+
+		.btn-danger {
+			background: #dc3545;
+			padding: 8px 20px;
+			color: white;
+			border-radius: 6px;
+			text-decoration: none;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div th:replace="~{fragments/commonui :: header}"></div>
+	<div th:replace="~{fragments/commonuser :: menu}"></div>
+
+	<div class="container">
+		<div class="card">
+
+			<div class="card-header">
+				Edit Patient Details
+			</div>
+
+			<div class="card-body">
+
+				<form th:action="@{/patient/update}" th:object="${patient}" method="post">
+
+					<input type="hidden" th:field="*{id}" />
+
+					<!-- ROW 1 -->
+					<div class="form-row">
+						<div class="form-group">
+							<label>First Name</label>
+							<input type="text" class="form-control" th:field="*{firstName}" required>
+						</div>
+						<div class="form-group">
+							<label>Middle Name</label>
+							<input type="text" class="form-control" th:field="*{middleName}">
+						</div>
+						<div class="form-group">
+							<label>Last Name</label>
+							<input type="text" class="form-control" th:field="*{lastName}" required>
+						</div>
+						<div class="form-group">
+							<label>Gender</label>
+							<select class="form-control" th:field="*{gender}" required>
+								<option value="">Select</option>
+								<option value="Male">Male</option>
+								<option value="Female">Female</option>
+								<option value="Other">Other</option>
+							</select>
+						</div>
+					</div>
+
+					<!-- ROW 2 -->
+					<div class="form-row">
+
+						<!-- ✅ FIXED DATE FIELD -->
+						<div class="form-group">
+							<label>Date of Birth</label>
+
+							<input type="date" class="form-control" id="dob"
+								th:value="${#temporals.format(patient.dateOfBirth, 'yyyy-MM-dd')}">
+
+							<input type="hidden" th:field="*{dateOfBirth}" id="dobHidden">
+						</div>
+
+						<div class="form-group">
+							<label>Marital Status</label>
+							<select class="form-control" th:field="*{maritalStatus}">
+								<option value="Single">Single</option>
+								<option value="Married">Married</option>
+								<option value="Divorced">Divorced</option>
+								<option value="Widowed">Widowed</option>
+							</select>
+						</div>
+
+						<div class="form-group">
+							<label>Blood Group</label>
+							<select class="form-control" th:field="*{bloodGroup}">
+								<option value="A+">A+</option>
+								<option value="A-">A-</option>
+								<option value="B+">B+</option>
+								<option value="B-">B-</option>
+								<option value="O+">O+</option>
+								<option value="O-">O-</option>
+								<option value="AB+">AB+</option>
+								<option value="AB-">AB-</option>
+							</select>
+						</div>
+
+						<div class="form-group">
+							<label>Aadhaar No</label>
+							<input type="text" class="form-control" th:field="*{aadhaarNo}" pattern="\d{12}" required>
+						</div>
+					</div>
+
+					<!-- REST SAME (NO CHANGE) -->
+					<div class="form-row">
+						<div class="form-group">
+							<label>Email</label>
+							<input type="email" class="form-control" th:field="*{email}">
+						</div>
+
+						<div class="form-group">
+							<label>Mobile</label>
+							<input type="text" class="form-control" th:field="*{mobileNo}" pattern="\d{10}" required>
+						</div>
+
+						<div class="form-group">
+							<label>Diseases</label>
+							<input type="text" class="form-control" th:field="*{diseases}">
+						</div>
+
+						<div class="form-group">
+							<label>Ward No</label>
+							<input type="number" class="form-control" th:field="*{wardNo}">
+						</div>
+					</div>
+
+					<div class="form-row">
+						<div class="form-group">
+							<label>Room No</label>
+							<input type="number" class="form-control" th:field="*{roomNo}">
+						</div>
+
+						<div class="form-group">
+							<label>Bill Amount</label>
+							<input type="number" step="0.01" class="form-control" th:field="*{billAmount}" required>
+						</div>
+
+						<div class="form-group">
+							<label>Block</label>
+							<input type="text" class="form-control" th:field="*{block}">
+						</div>
+
+						<div class="form-group">
+							<label>District</label>
+							<input type="text" class="form-control" th:field="*{district}">
+						</div>
+					</div>
+
+					<div class="form-row">
+						<div class="form-group">
+							<label>State</label>
+							<input type="text" class="form-control" th:field="*{state}">
+						</div>
+
+						<div class="form-group">
+							<label>Nationality</label>
+							<input type="text" class="form-control" th:field="*{nationality}">
+						</div>
+
+						<div class="form-group">
+							<label>Religion</label>
+							<input type="text" class="form-control" th:field="*{religion}">
+						</div>
+
+						<div class="form-group">
+							<label>Country</label>
+							<input type="text" class="form-control" th:field="*{country}">
+						</div>
+					</div>
+
+					<div class="form-row">
+						<div class="form-group">
+							<label>Medical History</label>
+							<input type="text" class="form-control" th:field="*{medicalHistory}">
+						</div>
+
+						<div class="form-group">
+							<label>History</label>
+							<textarea class="form-control" rows="1" th:field="*{history}"></textarea>
+						</div>
+
+						<div class="form-group">
+							<label>Note</label>
+							<textarea class="form-control" rows="1" th:field="*{note}"></textarea>
+						</div>
+
+						<div class="form-group">
+							<label>Address</label>
+							<textarea class="form-control" rows="1" th:field="*{address}"></textarea>
+						</div>
+					</div>
+
+					<!-- BUTTONS -->
+					<div style="text-align:center; margin-top:15px;">
+						<button type="submit" class="btn-success">Update</button>
+						<a th:href="@{/patient/all}" class="btn-danger">Cancel</a>
+					</div>
+
+					<!-- MESSAGE -->
+					<div th:if="${successMessage}">
+						<span th:if="${#strings.contains(successMessage, 'No changes')}" class="msg-warning"
+							th:text="${successMessage}"></span>
+
+						<span th:unless="${#strings.contains(successMessage, 'No changes')}" class="msg-success"
+							th:text="${successMessage}"></span>
+					</div>
+
+					<div th:if="${errorMessage}" class="msg-error" th:text="${errorMessage}"></div>
+
+				</form>
+			</div>
+
+			<div class="card-footer">
+				© <span id="year"></span> Santosh Hospital | All Rights Reserved
+			</div>
+
+		</div>
+	</div>
+
+	<script>
+		document.getElementById("year").innerHTML = new Date().getFullYear();
+
+		// Auto hide messages
+		setTimeout(() => {
+			let msgs = document.querySelectorAll(".msg-success, .msg-warning, .msg-error");
+			msgs.forEach(m => m.style.display = "none");
+		}, 3000);
+
+		// ✅ Sync DOB
+		const dob = document.getElementById("dob");
+		const dobHidden = document.getElementById("dobHidden");
+
+		dobHidden.value = dob.value;
+
+		dob.addEventListener("change", function () {
+			dobHidden.value = this.value;
+		});
+	</script>
+
+</body>
+
+</html>

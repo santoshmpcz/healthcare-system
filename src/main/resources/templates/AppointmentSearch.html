@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Appointment Search</title>
+
+	<th:block th:replace="~{fragments/commonui :: header}"></th:block>
+
+	<!-- ✅ FONT AWESOME (REQUIRED FOR ICONS) -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+	<style>
+		body {
+			background: #F5F7FA;
+			font-family: 'Segoe UI', 'Poppins', sans-serif;
+			color: #2C3E50;
+		}
+
+		.container {
+			max-width: 1150px;
+		}
+
+		.card {
+			border: none;
+			border-radius: 12px;
+			box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+		}
+
+		.card-header {
+			background: linear-gradient(135deg, #0B5ED7, #20C997);
+			color: white;
+			border-radius: 12px 12px 0 0;
+			padding: 18px;
+		}
+
+		.search-box {
+			background: #fff;
+			padding: 20px;
+			border-radius: 10px;
+			border: 1px solid #E3EAF2;
+		}
+
+		.form-control,
+		.form-select {
+			border-radius: 8px;
+			padding: 10px;
+		}
+
+		.btn-search {
+			background: #0d6efd;
+			color: white;
+			border-radius: 8px;
+		}
+
+		/* SLOT BUTTON */
+		.btn-slot {
+			background: linear-gradient(135deg, #20C997, #0DCAF0);
+			color: #fff;
+			border-radius: 50px;
+			padding: 8px 16px;
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			transition: 0.3s;
+		}
+
+		.btn-slot:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+		}
+
+		.doctor-img {
+			width: 45px;
+			height: 45px;
+			border-radius: 50%;
+		}
+
+		.table thead {
+			background: #0d6efd;
+			color: white;
+		}
+
+		.table tbody tr:hover {
+			background: #f1f6ff;
+		}
+
+		/* PAGINATION */
+		.pagination .page-link {
+			border-radius: 8px;
+			margin: 0 3px;
+			color: #0d6efd;
+		}
+
+		.pagination .active .page-link {
+			background: linear-gradient(135deg, #0B5ED7, #20C997);
+			color: white;
+			border: none;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div th:replace="~{fragments/commonuser :: menu}"></div>
+
+	<div class="container mt-4">
+
+		<div class="card">
+
+			<div class="card-header text-center">
+				<h4>
+					<i class="fa fa-calendar-check"></i> Appointment Search <i class="fa fa-stethoscope"></i>
+				</h4>
+			</div>
+
+			<div class="card-body">
+
+				<!-- SEARCH -->
+				<div class="search-box mb-4">
+					<form th:action="@{/appointment/view}" method="get">
+
+						<div class="row g-3 align-items-end">
+
+							<div class="col-md-4">
+								<label><i class="fa fa-user-md"></i> Doctor Name</label>
+								<input type="text" name="name" class="form-control" th:value="${param.name}"
+									placeholder="Enter doctor name...">
+							</div>
+
+							<div class="col-md-4">
+								<label><i class="fa fa-stethoscope"></i> Specialization</label>
+								<select name="specId" class="form-select">
+									<option value="">-- View All Doctors --</option>
+
+									<option th:each="ob : ${specializations}" th:value="${ob.key}" th:text="${ob.value}"
+										th:selected="${param.specId == ob.key}">
+									</option>
+								</select>
+							</div>
+
+							<div class="col-md-2">
+								<button class="btn btn-search w-100">
+									<i class="fa fa-search"></i> Search
+								</button>
+							</div>
+
+							<div class="col-md-2">
+								<a th:href="@{/appointment/view}" class="btn btn-outline-secondary w-100">
+									<i class="fa fa-refresh"></i> Reset
+								</a>
+							</div>
+
+						</div>
+
+					</form>
+				</div>
+
+				<!-- MESSAGE -->
+				<div th:if="${message}">
+					<div class="alert alert-success">
+						<i class="fa fa-check-circle"></i>
+						<span th:text="${message}"></span>
+					</div>
+				</div>
+
+				<!-- RECORD -->
+				<div class="mb-3">
+					<i class="fa fa-list"></i>
+					Showing <strong th:text="${pageData.totalElements}"></strong> doctors
+				</div>
+
+				<!-- TABLE -->
+				<div class="table-responsive">
+					<table class="table text-center align-middle">
+
+						<thead>
+							<tr>
+								<th><!--<i class="fa fa-hashtag"></i>--> #</th>
+								<th><!--<i class="fa fa-image"></i> -->Photo</th>
+								<th><i class="fa fa-user-md"></i> Name</th>
+								<th><i class="fa fa-envelope"></i> Email</th>
+								<th><i class="fa fa-stethoscope"></i> Specialization</th>
+								<th><i class="fa fa-phone"></i> Mobile</th>
+								<th><i class="fa fa-sticky-note"></i> Note</th>
+								<th><i class="fa fa-cogs"></i> Action</th>
+							</tr>
+						</thead>
+
+						<tbody>
+
+							<tr th:each="ob, stat : ${docList}">
+
+								<td>
+									<!--	<i class="fa fa-list-ol text-primary"></i>-->
+									<span th:text="${stat.index + 1 + (pageData.number * pageData.size)}"></span>
+								</td>
+
+								<td>
+									<img class="doctor-img" th:src="${ob.photo != null} 
+										? @{/doctor-images/{img}(img=${ob.photo})} 
+										: @{/images/no-image.png}" />
+								</td>
+
+								<td>
+									<i class="fa fa-user-md text-primary"></i>
+									<b th:text="${ob.firstName + ' ' + ob.lastName}"></b>
+								</td>
+
+								<td>
+									<i class="fa fa-envelope text-danger"></i>
+									<span th:text="${ob.email}"></span>
+								</td>
+
+								<td>
+									<span class="badge bg-info text-dark">
+										<i class="fa fa-stethoscope"></i>
+										<span th:text="${ob.specializationName}"></span>
+									</span>
+								</td>
+
+								<td>
+									<i class="fa fa-phone text-success"></i>
+									<span th:text="${ob.mobile}"></span>
+								</td>
+
+								<td>
+									<i class="fa fa-sticky-note text-warning"></i>
+									<span th:text="${ob.note}"></span>
+								</td>
+
+								<td>
+									<a th:href="@{/appointment/viewSlot(id=${ob.id})}" class="btn btn-slot">
+										<i class="fa fa-calendar-check"></i> View Slots
+									</a>
+								</td>
+
+							</tr>
+
+						</tbody>
+
+					</table>
+				</div>
+
+				<!-- PAGINATION -->
+				<nav th:if="${pageData.totalPages > 1}">
+					<ul class="pagination justify-content-center">
+
+						<li class="page-item" th:classappend="${pageData.first}? 'disabled'">
+							<a class="page-link"
+								th:href="@{/appointment/view(page=${pageData.number-1},name=${param.name},specId=${param.specId})}">
+								&laquo;
+							</a>
+						</li>
+
+						<li class="page-item" th:each="i : ${#numbers.sequence(0, pageData.totalPages-1)}"
+							th:classappend="${i==pageData.number}? 'active'">
+							<a class="page-link" th:text="${i+1}"
+								th:href="@{/appointment/view(page=${i},name=${param.name},specId=${param.specId})}">
+							</a>
+						</li>
+
+						<li class="page-item" th:classappend="${pageData.last}? 'disabled'">
+							<a class="page-link"
+								th:href="@{/appointment/view(page=${pageData.number+1},name=${param.name},specId=${param.specId})}">
+								&raquo;
+							</a>
+						</li>
+
+					</ul>
+				</nav>
+
+			</div>
+
+		</div>
+
+	</div>
+
+</body>
+
+</html>

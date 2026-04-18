@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Doctor Details</title>
+
+	<th:block th:replace="~{fragments/commonui :: header}"></th:block>
+
+	<!-- Font Awesome 6 -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+	<style>
+		body {
+			background: url('/images/AavyaShah.png') no-repeat center center fixed;
+			background-size: cover;
+			font-family: 'Segoe UI', sans-serif;
+		}
+
+		.container-box {
+			max-width: 900px;
+			margin: 40px auto;
+			padding: 0 15px;
+		}
+
+		.card {
+			border-radius: 25px;
+			background: rgba(255, 255, 255, 0.15);
+			/* transparent */
+			backdrop-filter: blur(10px);
+			-webkit-backdrop-filter: blur(10px);
+			box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+			overflow: hidden;
+		}
+
+		.header {
+			background: linear-gradient(135deg, #2563eb, #4f46e5);
+			height: 60px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: white;
+			font-size: 20px;
+			font-weight: 600;
+		}
+
+		.profile-wrapper {
+			margin-top: 15px;
+			text-align: center;
+		}
+
+		.profile-img {
+			width: 130px;
+			height: 130px;
+			border-radius: 50%;
+			object-fit: cover;
+			border: 5px solid white;
+			box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+		}
+
+		.body {
+			padding: 25px;
+		}
+
+		.doctor-name {
+			text-align: center;
+			font-size: 22px;
+			font-weight: 600;
+			margin-top: 10px;
+			color: #1e293b;
+		}
+
+		.tags {
+			text-align: center;
+			margin-top: 8px;
+		}
+
+		.tag {
+			display: inline-block;
+			padding: 5px 12px;
+			border-radius: 20px;
+			font-size: 12px;
+			margin: 4px;
+			background: #e0e7ff;
+			color: #3730a3;
+			font-weight: 500;
+		}
+
+		.info-grid {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 15px;
+			margin-top: 20px;
+		}
+
+		.info-card {
+			background: rgba(255, 255, 255, 0.2);
+			/* transparent cards */
+			border-radius: 12px;
+			padding: 12px;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			backdrop-filter: blur(8px);
+			box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+		}
+
+		.icon-box {
+			width: 38px;
+			height: 38px;
+			border-radius: 10px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: white;
+		}
+
+		.icon-blue {
+			background: #3b82f6;
+		}
+
+		.icon-green {
+			background: #10b981;
+		}
+
+		.icon-yellow {
+			background: #f59e0b;
+		}
+
+		.icon-pink {
+			background: #ec4899;
+		}
+
+		.info-text {
+			font-size: 12px;
+			color: #e5e7eb;
+			/* light text */
+		}
+
+		.info-value {
+			font-size: 14px;
+			font-weight: 600;
+			color: #ffffff;
+			/* white text */
+		}
+
+		.doctor-name {
+			color: white;
+		}
+
+		.actions {
+			display: flex;
+			justify-content: center;
+			gap: 12px;
+			margin-top: 25px;
+		}
+
+		/* COMMON BUTTON STYLE */
+		.btn-custom {
+			padding: 12px 26px;
+			border-radius: 12px;
+			font-weight: 600;
+			border: none;
+			cursor: pointer;
+			text-decoration: none;
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			font-size: 14px;
+
+			transition: all 0.3s ease;
+			backdrop-filter: blur(8px);
+		}
+
+		/* 🔙 BACK BUTTON (Glass Style) */
+		.btn-back {
+			background: rgba(255, 255, 255, 0.25);
+			color: #ffffff;
+			border: 1px solid rgba(255, 255, 255, 0.3);
+		}
+
+		/* ✏️ EDIT BUTTON (Premium Gradient) */
+		.btn-edit {
+			background: linear-gradient(135deg, #2563eb, #3b82f6);
+			color: white;
+			box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
+		}
+
+		@media(max-width: 768px) {
+			.info-grid {
+				grid-template-columns: 1fr;
+			}
+		}
+	</style>
+</head>
+
+<body>
+
+	<div th:replace="~{fragments/commonuser :: menu}"></div>
+
+	<div class="container-box">
+		<div class="card">
+
+			<div class="header">  <i class="fas fa-user-md"></i> &nbsp; Doctor Profile &nbsp;<i class="fas fa-stethoscope"></i></div>
+
+			<div class="profile-wrapper">
+				<img class="profile-img"
+					th:src="${doctor.photo != null} ? @{/doctor-images/{img}(img=${doctor.photo})} : @{/images/no-image.png}">
+			</div>
+
+			<div class="body">
+				<div class="doctor-name" th:text="${doctor.firstName + ' ' + doctor.lastName}" ></div>
+				
+
+				<div class="tags">
+					<span class="tag" th:text="${doctor.specializationName}"></span>
+					<span class="tag"
+						th:text="${doctor.experience != null ? doctor.experience + ' Years' : '0 Years'}"></span>
+				</div>
+
+				<div class="info-grid">
+
+					<div class="info-card">
+						<div class="icon-box icon-pink">
+							<i class="fa-solid fa-envelope"></i>
+						</div>
+						<div>
+							<div class="info-text">Email</div>
+							<div class="info-value" th:text="${doctor.email}"></div>
+						</div>
+					</div>
+
+					<div class="info-card">
+						<div class="icon-box icon-blue">
+							<i class="fa-solid fa-phone"></i>
+						</div>
+						<div>
+							<div class="info-text">Mobile</div>
+							<div class="info-value" th:text="${doctor.mobile}"></div>
+						</div>
+					</div>
+
+					<div class="info-card">
+						<div class="icon-box icon-green">
+
+							<i class="bi bi-hospital"></i>
+
+						</div>
+						<div>
+							<div class="info-text">Room No</div>
+							<div class="info-value" th:text="${doctor.roomNo}"></div>
+						</div>
+					</div>
+
+					<div class="info-card">
+						<div class="icon-box icon-yellow">
+							<i class="fa-solid fa-user-graduate"></i>
+						</div>
+						<div>
+							<div class="info-text">Degree</div>
+							<div class="info-value" th:text="${doctor.degree}"></div>
+						</div>
+					</div>
+
+					<div class="info-card">
+						<div class="icon-box icon-pink">
+							<i class="fa-solid" th:classappend="${doctor.gender == 'Male'} ? ' fa-mars' :
+                                           (${doctor.gender == 'Female'} ? ' fa-venus' : ' fa-genderless')">
+							</i>
+						</div>
+						<div>
+							<div class="info-text">Gender</div>
+							<div class="info-value" th:text="${doctor.gender}"></div>
+						</div>
+					</div>
+
+					<div class="info-card">
+						<div class="icon-box icon-green">
+							<i class="fa-solid fa-heart"></i>
+						</div>
+						<div>
+							<div class="info-text">Hobbies</div>
+							<div class="info-value" th:text="${doctor.hobbies}"></div>
+						</div>
+					</div>
+
+					<div class="info-card">
+						<div class="icon-box icon-blue">
+							<i class="fa-solid fa-location-dot"></i>
+						</div>
+						<div>
+							<div class="info-text">Address</div>
+							<div class="info-value" th:text="${doctor.address}"></div>
+						</div>
+					</div>
+
+					<div class="info-card">
+						<div class="icon-box icon-blue">
+							<i class="fa-solid fa-building"></i>
+						</div>
+						<div>
+							<div class="info-text">Block</div>
+							<div class="info-value" th:text="${doctor.block}"></div>
+						</div>
+					</div>
+
+					<div class="info-card">
+						<div class="icon-box icon-blue">
+							<i class="fa-solid fa-city"></i>
+						</div>
+						<div>
+							<div class="info-text">District</div>
+							<div class="info-value" th:text="${doctor.district}"></div>
+						</div>
+					</div>
+
+					<div class="info-card">
+						<div class="icon-box icon-blue">
+							<i class="fa-solid fa-earth-asia"></i>
+						</div>
+						<div>
+							<div class="info-text">Country</div>
+							<div class="info-value" th:text="${doctor.country}"></div>
+						</div>
+					</div>
+
+					<div class="info-card">
+						<div class="icon-box icon-yellow">
+							<i class="fa-solid fa-flag"></i>
+						</div>
+						<div>
+							<div class="info-text">Nationality</div>
+							<div class="info-value" th:text="${doctor.nationality}"></div>
+						</div>
+					</div>
+
+					<div class="info-card">
+						<div class="icon-box icon-pink">
+							<i class="fa-solid fa-note-sticky"></i>
+						</div>
+						<div>
+							<div class="info-text">Note</div>
+							<div class="info-value" th:text="${doctor.note}"></div>
+						</div>
+					</div>
+
+				</div>
+
+				<div class="actions">
+					<a th:href="@{/doctor/all}" class="btn-custom btn-back">
+						<i class="fa-solid fa-chevron-left"></i> Back
+					</a>
+
+					<a th:href="@{/doctor/edit(id=${doctor.id})}" class="btn-custom btn-edit">
+						<i class="fa-solid fa-pen"></i> Edit Doctor
+					</a>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+</body>
+
+</html>

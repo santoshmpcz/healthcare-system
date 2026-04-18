@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+	<meta charset="UTF-8">
+	<title>Doctors List</title>
+
+	<th:block th:replace="~{fragments/commonui :: header}"></th:block>
+
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+	<style>
+		/* ================= BODY ================= */
+		body {
+			background: url('/images/santoshHospital.jpeg') no-repeat center center fixed;
+			background-size: cover;
+			font-family: 'Segoe UI', sans-serif;
+		}
+
+		/* ================= HEADER ================= */
+
+		.header-bar {
+			background: linear-gradient(to right, #1e3a8a, #2563eb);
+			color: white;
+			padding: 15px 20px;
+			border-radius: 12px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		.header-title {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			font-size: 20px;
+			font-weight: 600;
+		}
+
+		.header-right {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+		}
+
+		.search-box {
+			border-radius: 30px;
+			border: 1px solid #dcdcdc;
+			padding: 10px 18px;
+			transition: all .25s ease;
+		}
+
+		/* ===== INDUSTRY FOCUS EFFECT ===== */
+		.search-box:focus {
+			border-color: #2962ff;
+			box-shadow: 0 0 0 4px rgba(41, 98, 255, 0.15);
+			outline: none;
+		}
+
+		/* Hover Effect */
+		.search-box:hover {
+			border-color: #2962ff;
+		}
+
+		/* Icon Button */
+		.search-btn {
+			border-radius: 50%;
+			transition: .25s;
+		}
+
+		.search-btn:hover {
+			background: #2962ff;
+			color: white;
+		}
+
+		/* ================= SIDEBAR ================= */
+
+		.sidebar {
+			background: #fff;
+			border-radius: 12px;
+			padding: 20px;
+			box-shadow: 0 6px 15px rgba(0, 0, 0, .08);
+		}
+
+		.filter-title {
+			font-weight: 600;
+			color: #2563eb;
+			margin-bottom: 14px;
+		}
+
+		/* ================= ACTION TOOLBAR ================= */
+
+		.action-toolbar {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 22px;
+			flex-wrap: wrap;
+		}
+
+		.left-actions {
+			display: flex;
+			align-items: center;
+		}
+
+		.right-actions {
+			display: flex;
+			gap: 14px;
+			align-items: center;
+		}
+
+		.action-btn {
+			padding: 8px 18px;
+			font-size: 14px;
+			font-weight: 500;
+			border-radius: 8px;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			box-shadow: 0 3px 8px rgba(0, 0, 0, .08);
+			transition: .25s;
+		}
+
+		.action-btn:hover {
+			transform: translateY(-1px);
+			box-shadow: 0 6px 14px rgba(0, 0, 0, .12);
+		}
+
+		/* ================= CARD GRID ================= */
+
+		.card-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+			gap: 22px;
+		}
+
+		.doctor-card {
+			background: #fff;
+			border-radius: 18px;
+			box-shadow: 0 10px 25px rgba(0, 0, 0, .08);
+			overflow: hidden;
+			transition: .3s;
+		}
+
+		.doctor-card:hover {
+			transform: translateY(-5px);
+		}
+
+		.img-box {
+			height: 260px;
+			overflow: hidden;
+		}
+
+		.doc-img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			object-position: top;
+		}
+
+		.card-body {
+			padding: 12px 14px;
+		}
+
+		.doc-name {
+			font-weight: 600;
+			font-size: 17px;
+		}
+
+		.meta {
+			font-size: 14px;
+			color: #555;
+			display: flex;
+			gap: 6px;
+		}
+
+		.specialization-text {
+			font-weight: 600;
+			display: flex;
+			gap: 6px;
+		}
+
+		/* ================= CARD FOOTER ================= */
+
+		.card-footer {
+			padding: 8px 12px;
+			display: flex;
+			justify-content: space-between;
+		}
+
+		.btn-pill {
+			padding: 5px 12px;
+			font-size: 13px;
+			border-radius: 20px;
+			border: none;
+		}
+
+		.btn-view {
+			background: #e0ecff;
+			color: #2563eb;
+		}
+
+		.btn-edit {
+			background: #fff3cd;
+			color: #d97706;
+		}
+
+		.btn-delete {
+			background: #fee2e2;
+			color: #dc2626;
+		}
+
+		/* ================= PAGINATION ================= */
+
+		.page-btn {
+			margin: 3px;
+			padding: 6px 12px;
+			border: 1px solid #ccc;
+			border-radius: 6px;
+			text-decoration: none;
+		}
+
+		.page-active {
+			background: #2563eb;
+			color: white;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div th:replace="~{fragments/commonuser :: menu}"></div>
+
+	<div class="container-fluid mt-3">
+
+		<!-- SUCCESS MESSAGE -->
+		<div th:if="${successMessage}" id="alertBox" class="alert alert-success text-center">
+			<span th:text="${successMessage}"></span>
+		</div>
+
+		<!-- ================= HEADER ================= -->
+
+		<div class="header-bar mb-3">
+
+			<h4 class="header-title">
+				<i class="fas fa-user-md"></i>
+				Doctors List
+				<i class="fa-solid fa-stethoscope"></i>
+			</h4>
+
+			<div class="header-right">
+
+				<form th:action="@{/doctor/all}" method="get">
+					<input type="text" name="keyword" class="search-box" placeholder="Search doctor..."
+						th:value="${keyword}">
+				</form>
+				<!--
+				<a th:href="@{/logout}" class="btn btn-light rounded-circle">
+					<i class="fa fa-sign-out-alt"></i>
+				</a>
+-->
+				<!-- ✅ LOGOUT -->
+				<a href="#" class="btn btn-light rounded-circle"
+					onclick="event.preventDefault(); document.getElementById('logoutForm').submit();">
+					<i class="fa fa-sign-out-alt"></i>
+				</a>
+			</div>
+		</div>
+
+		<div class="row">
+
+			<!-- ================= FILTER SIDEBAR ================= -->
+
+			<div class="col-md-3">
+
+				<div class="sidebar">
+
+					<h5 class="filter-title">
+						<i class="fa fa-filter"></i> Filters
+					</h5>
+
+					<form th:action="@{/doctor/all}" method="get">
+
+						<input type="hidden" name="keyword" th:value="${keyword}">
+
+						<select name="specializationId" class="form-control mb-3" onchange="this.form.submit()">
+
+							<option value="">All Specializations</option>
+
+							<option th:each="s:${specList}" th:value="${s.id}" th:text="${s.specName}"
+								th:selected="${s.id}==${specializationId}">
+							</option>
+
+						</select>
+
+						<select name="experience" class="form-control mb-3" onchange="this.form.submit()">
+							<option value="">Experience</option>
+							<option value="1">1+ Years</option>
+							<option value="5">5+ Years</option>
+							<option value="10">10+ Years</option>
+							<option value="15">15+ Years</option>
+						</select>
+
+						<input type="text" name="roomNo" class="form-control mb-3" placeholder="Room Number"
+							th:value="${roomNo}" onchange="this.form.submit()">
+
+						<input type="text" name="doctorName" class="form-control mb-3" placeholder="Doctor Name"
+							th:value="${doctorName}" onchange="this.form.submit()">
+
+						<a th:href="@{/doctor/all}" class="btn btn-outline-danger w-100">
+							Reset Filters
+						</a>
+
+					</form>
+
+					<!-- PAGINATION -->
+
+					<div class="text-center mt-3">
+
+						<a th:if="${currentPage>0}" th:href="@{/doctor/all(page=${currentPage-1},keyword=${keyword})}"
+							class="page-btn">Prev</a>
+
+						<span th:each="i:${#numbers.sequence(0,totalPages-1)}">
+
+							<a th:href="@{/doctor/all(page=${i},keyword=${keyword})}" th:text="${i+1}"
+								th:classappend="${i==currentPage}?'page-btn page-active':'page-btn'">
+							</a>
+
+						</span>
+
+						<a th:if="${currentPage<totalPages-1}"
+							th:href="@{/doctor/all(page=${currentPage+1},keyword=${keyword})}" class="page-btn">Next</a>
+
+					</div>
+
+				</div>
+			</div>
+
+			<!-- ================= DOCTOR AREA ================= -->
+
+			<div class="col-md-9">
+
+				<!-- ⭐ PROFESSIONAL ACTION TOOLBAR -->
+
+				<div class="action-toolbar">
+
+					<div class="left-actions">
+						<a th:href="@{/doctor/register}" class="btn btn-primary action-btn">
+							<i class="fa fa-plus"></i> Add Doctor
+						</a>
+					</div>
+
+					<div class="right-actions">
+						<a th:href="@{/doctor/export}" class="btn btn-success action-btn">
+							<i class="fa fa-file-excel"></i> Excel
+						</a>
+
+						<a th:href="@{/doctor/export/pdf}" class="btn btn-danger action-btn">
+							<i class="fa fa-file-pdf"></i> PDF
+						</a>
+					</div>
+
+				</div>
+
+				<div class="card-grid">
+
+					<div class="doctor-card" th:each="ob:${list}">
+
+						<div class="img-box">
+							<img class="doc-img"
+								th:src="${ob.photo != null} ? @{/doctor-images/{img}(img=${ob.photo})} : @{/images/no-image.png}">
+						</div>
+
+						<div class="card-body">
+
+							<div class="doc-name" th:text="${ob.firstName+' '+ob.lastName}">
+							</div>
+
+							<div class="specialization-text" th:style="'color:'+(${ob.specializationColor}!=null?
+${ob.specializationColor}:'#2563eb')">
+
+								<i th:class="${ob.specializationIcon!=null?
+ob.specializationIcon:'fa-solid fa-stethoscope'}"></i>
+
+								<span th:text="${ob.specializationName}"></span>
+
+							</div>
+
+							<div class="meta">
+								<i class="fa fa-hashtag"></i>
+								Room <span th:text="${ob.roomNo}"></span>
+							</div>
+
+							<div class="meta">
+								<i class="fa fa-clock"></i>
+								<span th:text="${ob.experience}"></span> Years
+							</div>
+
+						</div>
+
+						<div class="card-footer">
+
+							<a th:href="@{/doctor/view(id=${ob.id})}" class="btn btn-pill btn-view">
+								<i class="fa fa-eye"></i> View
+							</a>
+
+							<a th:href="@{/doctor/edit(id=${ob.id})}" class="btn btn-pill btn-edit">
+								<i class="fa fa-pen"></i> Edit
+							</a>
+
+							<form th:action="@{/doctor/delete/{id}(id=${ob.id})}" method="post">
+								<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+								<button class="btn btn-pill btn-delete">
+									<i class="fa fa-trash"></i> Delete
+								</button>
+							</form>
+
+						</div>
+
+					</div>
+
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+	<!-- ✅ LOGOUT FORM -->
+	<form th:action="@{/logout}" method="post" id="logoutForm" style="display:none;">
+		<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+	</form>
+
+	<script>
+
+		/* auto hide alert */
+		setTimeout(() => {
+			const alertBox = document.getElementById('alertBox');
+			if (alertBox) alertBox.style.display = 'none';
+		}, 3000);
+
+		/* AUTO SEARCH */
+		let timer;
+		document.querySelector(".search-box")
+			.addEventListener("keyup", function () {
+				clearTimeout(timer);
+				timer = setTimeout(() => this.form.submit(), 500);
+			});
+
+	</script>
+
+</body>
+
+</html>

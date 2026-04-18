@@ -1,0 +1,44 @@
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div th:replace="~{fragments/commonui :: header}"></div>
+<div th:replace="~{fragments/commonuser :: menu}"></div>
+
+<div class="container">
+	<div class="card">
+		<div class="card-header bg-primary text-center text-white">
+			<h3>
+				<i class="fa fa-heartbeat"></i>
+				Doctor Appointments
+				<i class="fas fa-stethoscope"></i>
+			</h3>
+		</div>
+
+		<div class="card-body">
+			<table class="table table-hover">
+				<thead>
+					<tr class="bg-info text-white">
+						<th>#</th>
+						<th>Date</th>
+						<th>No. of Slots</th>
+						<th>Fee</th>
+						<th>Details</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="ob, iStat : ${list}">
+						<td th:text="${iStat.count}"></td>
+						<td th:text="${ob.date}"></td>
+						<td th:text="${ob.noOfSlots}"></td>
+						<td th:text="${ob.fee}"></td>
+						<td th:text="${ob.details}"></td>
+					</tr>
+					<tr th:if="${#lists.isEmpty(list)}">
+						<td colspan="5" class="text-center text-muted">No appointments found</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+</html>

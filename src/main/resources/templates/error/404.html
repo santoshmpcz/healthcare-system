@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<!-- safer way -->
+	<th:block th:replace="~{fragments/commonui :: header}"></th:block>
+</head>
+
+<body>
+
+	<!-- safer way -->
+	<th:block th:replace="~{fragments/commonui :: menu}"></th:block>
+
+	<div class="container mt-4">
+
+		<!-- Dynamic title -->
+		<h3 th:text="${errorTitle}">Service Not Exist</h3>
+
+		<!-- Dynamic message -->
+		<p th:text="${message}">Requested service is not available.</p>
+
+		<!-- Path -->
+		<p><b>Path:</b> <span th:text="${path}"></span></p>
+
+		<!-- Button -->
+		<a th:href="@{/spec/all}" class="btn btn-primary">Go to Home</a>
+
+	</div>
+
+</body>
+
+</html>

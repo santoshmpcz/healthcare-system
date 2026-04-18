@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Slot Request Data</title>
+
+	<!-- Header -->
+	<th:block th:replace="~{fragments/commonui :: header}"></th:block>
+
+	<style>
+		/* ================= CARD ================= */
+		.card {
+			border: none;
+			border-radius: 14px;
+		}
+
+		.card-header {
+			border-radius: 14px 14px 0 0 !important;
+		}
+
+		/* ================= STATUS BADGES ================= */
+		.badge-status {
+			padding: 6px 14px;
+			border-radius: 20px;
+			font-size: 12px;
+			font-weight: 700;
+			display: inline-block;
+			min-width: 95px;
+		}
+
+		.status-accepted {
+			background: #28a745;
+			color: #fff;
+		}
+
+		.status-rejected {
+			background: #dc3545;
+			color: #fff;
+		}
+
+		.status-pending {
+			background: #ffc107;
+			color: #000;
+		}
+
+		.status-cancelled {
+			background: #6c757d;
+			color: #fff;
+		}
+
+		/* ================= ACTION ================= */
+		.action-group {
+			display: flex;
+			justify-content: center;
+			gap: 8px;
+			flex-wrap: wrap;
+		}
+
+		.action-btn {
+			padding: 6px 14px;
+			border-radius: 20px;
+			font-size: 12px;
+			font-weight: 700;
+			border: none;
+			cursor: pointer;
+			transition: 0.2s ease-in-out;
+		}
+
+		.btn-accept {
+			background: #28a745;
+			color: #fff;
+		}
+
+		.btn-accept:hover {
+			background: #218838;
+		}
+
+		.btn-reject {
+			background: #dc3545;
+			color: #fff;
+		}
+
+		.btn-reject:hover {
+			background: #c82333;
+		}
+
+		table td,
+		table th {
+			vertical-align: middle !important;
+		}
+	</style>
+</head>
+
+<body>
+
+	<!-- Menu -->
+	<th:block th:replace="~{fragments/commonuser :: menu}"></th:block>
+
+	<div class="container mt-4">
+
+		<div class="card shadow-lg">
+
+			<div class="card-header bg-primary text-white text-center">
+				<h3 class="mb-0">SLOT REQUEST DATA</h3>
+			</div>
+
+			<div class="card-body">
+
+				<!-- EMPTY -->
+				<div th:if="${list == null or #lists.isEmpty(list)}">
+					<h5 class="text-center text-danger mb-0">
+						No Slot Requests Available
+					</h5>
+				</div>
+
+				<!-- TABLE -->
+				<div class="table-responsive" th:if="${list != null and !#lists.isEmpty(list)}">
+
+					<table class="table table-bordered table-hover align-middle">
+
+						<thead class="table-info text-center">
+							<tr>
+								<th>#</th>
+								<th>PATIENT</th>
+								<th>DATE</th>
+								<th>DOCTOR</th>
+								<th>STATUS</th>
+								<th>OPERATION</th>
+							</tr>
+						</thead>
+
+						<tbody>
+
+							<tr th:each="ob, i : ${list}">
+
+								<!-- SERIAL -->
+								<td class="text-center" th:text="${i.count}">
+								</td>
+
+								<!-- PATIENT -->
+								<td th:text="${not #strings.isEmpty(ob.patientName) ? ob.patientName : 'N/A'}">
+								</td>
+
+								<!-- DATE -->
+								<td th:text="${not #strings.isEmpty(ob.appointmentDate) ? ob.appointmentDate : 'N/A'}">
+								</td>
+
+								<!-- DOCTOR -->
+								<td th:text="${not #strings.isEmpty(ob.doctorName) ? ob.doctorName : 'N/A'}">
+								</td>
+
+								<!-- STATUS -->
+								<td class="text-center">
+
+									<span th:if="${ob.status != null and ob.status.name() == 'ACCEPTED'}"
+										class="badge-status status-accepted">
+										ACCEPTED
+									</span>
+
+									<span th:if="${ob.status != null and ob.status.name() == 'REJECTED'}"
+										class="badge-status status-rejected">
+										REJECTED
+									</span>
+
+									<span th:if="${ob.status != null and ob.status.name() == 'PENDING'}"
+										class="badge-status status-pending">
+										PENDING
+									</span>
+
+									<span th:if="${ob.status != null and ob.status.name() == 'CANCELLED'}"
+										class="badge-status status-cancelled">
+										CANCELLED
+									</span>
+
+								</td>
+
+								<!-- OPERATION -->
+								<td class="text-center">
+
+									<!-- Pending Only -->
+									<th:block th:if="${ob.status != null and ob.status.name() == 'PENDING'}">
+
+										<div class="action-group" sec:authorize="hasAnyRole('ADMIN','DOCTOR')">
+
+											<!-- ACCEPT -->
+											<form th:action="@{/slots/accept}" method="post">
+												<input type="hidden" name="id" th:value="${ob.id}">
+												<input type="hidden" th:name="${_csrf.parameterName}"
+													th:value="${_csrf.token}">
+
+												<button type="submit" class="action-btn btn-accept"
+													onclick="return confirm('Accept this request?')">
+													Accept
+												</button>
+											</form>
+
+											<!-- REJECT -->
+											<form th:action="@{/slots/reject}" method="post">
+												<input type="hidden" name="id" th:value="${ob.id}">
+												<input type="hidden" th:name="${_csrf.parameterName}"
+													th:value="${_csrf.token}">
+
+												<button type="submit" class="action-btn btn-reject"
+													onclick="return confirm('Reject this request?')">
+													Reject
+												</button>
+											</form>
+
+										</div>
+
+									</th:block>
+
+									<!-- Non Pending -->
+									<span th:if="${ob.status == null or ob.status.name() != 'PENDING'}"
+										class="text-muted">
+										No Action
+									</span>
+
+								</td>
+
+							</tr>
+
+						</tbody>
+
+					</table>
+
+				</div>
+
+			</div>
+
+		</div>
+
+	</div>
+
+</body>
+
+</html>

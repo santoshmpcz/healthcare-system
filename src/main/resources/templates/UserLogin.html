@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Login</title>
+
+	<th:block th:replace="~{fragments/commonui :: header}"></th:block>
+
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+	<style>
+		body {
+			margin: 0;
+			font-family: 'Segoe UI', sans-serif;
+			height: 100vh;
+			background: url('/images/AavyaShah.png') no-repeat center center fixed;
+			background-size: cover;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		body::before {
+			content: "";
+			position: absolute;
+			width: 100%;
+			height: 100%;
+			background: rgba(0, 0, 0, 0.35);
+		}
+
+		.container-main {
+			position: relative;
+			z-index: 2;
+			display: flex;
+			width: 90%;
+			max-width: 1200px;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		.left-content {
+			color: #fff;
+		}
+
+		.logo {
+			font-size: 22px;
+			font-weight: 600;
+			margin-bottom: 30px;
+		}
+
+		.left-content h1 {
+			font-size: 60px;
+			font-weight: 600;
+		}
+
+		.left-content p {
+			margin-top: 20px;
+			font-size: 18px;
+			opacity: 0.9;
+		}
+
+		.login-card {
+			width: 380px;
+			padding: 40px;
+			border-radius: 25px;
+			background: rgba(255, 255, 255, 0.15);
+			border: 1px solid rgba(255, 255, 255, 0.3);
+			box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+			color: #fff;
+		}
+
+		.login-card h2 {
+			text-align: center;
+		}
+
+		.sub-text {
+			text-align: center;
+			margin-bottom: 20px;
+		}
+
+		.input-field {
+			display: flex;
+			align-items: center;
+			padding: 6px 10px;
+			border-radius: 30px;
+			margin-bottom: 15px;
+			border: 1px solid rgba(255, 255, 255, 0.4);
+		}
+
+		.input-icon {
+			width: 35px;
+			height: 35px;
+			border-radius: 50%;
+			background: rgba(255, 255, 255, 0.5);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			margin-right: 10px;
+		}
+
+		.input-field input {
+			border: none;
+			background: transparent;
+			outline: none;
+			color: #fff;
+			width: 100%;
+		}
+
+		.input-field input::placeholder {
+			color: #eee;
+		}
+
+		.extra {
+			display: flex;
+			flex-direction: column;
+			font-size: 14px;
+			margin: 10px 0 15px;
+		}
+
+		.top-row {
+			display: flex;
+			justify-content: space-between;
+		}
+
+		.register-row {
+			text-align: center;
+			margin-top: 8px;
+		}
+
+		input:-webkit-autofill {
+			-webkit-text-fill-color: #fff;
+			transition: background-color 5000s ease-in-out 0s;
+		}
+
+		.register-link {
+			color: #6c63ff;
+			font-weight: 500;
+			text-decoration: none;
+		}
+
+		.register-link:hover {
+			text-decoration: underline;
+			color: #5a54d1;
+		}
+
+		.register-row a:hover {
+			text-decoration: underline;
+		}
+
+		.btn-login {
+			width: 100%;
+			padding: 14px;
+			border-radius: 30px;
+			border: none;
+			background: linear-gradient(135deg, #FC46AD, #167F79, #833AB4, #413BB3, #3aa0ff);
+			color: white;
+			font-size: 16px;
+			font-weight: 600;
+			cursor: pointer;
+			transition: 0.3s;
+		}
+
+		.btn-login:hover {
+			transform: scale(1.05);
+		}
+
+		.error-msg {
+			margin-top: 10px;
+			color: #ff4d4d;
+			font-size: 14px;
+			font-weight: bold;
+			text-align: center;
+		}
+
+		.success-msg {
+			margin-top: 10px;
+			color: #167F79;
+			font-size: 14px;
+			font-weight: bold;
+			text-align: center;
+		}
+
+		.divider {
+			text-align: center;
+			margin: 15px 0;
+		}
+
+		.social {
+			display: flex;
+			justify-content: center;
+			gap: 15px;
+		}
+
+		.social-icon {
+			width: 45px;
+			height: 45px;
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			text-decoration: none;
+			color: white;
+			font-size: 18px;
+			transition: 0.3s ease;
+		}
+
+		.social-icon.google {
+			background: #db4437;
+		}
+
+		.social-icon.facebook {
+			background: #1877f2;
+		}
+
+		.social-icon.apple {
+			background: #000;
+		}
+
+		.social-icon.instagram {
+			background: linear-gradient(45deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5);
+		}
+
+		.social-icon:hover {
+			transform: scale(1.1);
+			box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+		}
+	</style>
+</head>
+
+<body>
+
+	<div class="container-main">
+
+		<div class="left-content">
+			<div class="logo">
+				<h1><i class="fa fa-heartbeat"></i> HealthCare</h1>
+			</div>
+			<h1>
+				<i class="fas fa-user-md"></i> Care You<br><br>
+				<i class="fas fa-stethoscope"></i> &nbsp;Can Trust
+			</h1>
+			<p>Providing quality healthcare services with compassion and excellence</p>
+		</div>
+
+		<div class="login-card">
+
+			<h2>Welcome Back</h2>
+			<div class="sub-text">Login to your account</div>
+
+			<form th:action="@{/login}" method="POST">
+
+				<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+				<div class="input-field">
+					<div class="input-icon">
+						<i class="fa fa-envelope"></i>
+					</div>
+					<input type="text" name="username" placeholder="Email" required>
+				</div>
+
+				<div class="input-field">
+					<div class="input-icon">
+						<i class="fa fa-lock"></i>
+					</div>
+					<input type="password" name="password" placeholder="Password" required>
+				</div>
+
+				<div class="extra">
+					<div class="top-row">
+						<label><input type="checkbox"> Remember Me</label>
+						<a th:href="@{/user/showForgot}">Forgot Password?</a>
+					</div>
+
+					<div class="register-row">
+						<a th:href="@{/patient/register}">New User? Register Here</a>
+					</div>
+				</div>
+
+				<button type="submit" class="btn-login">
+					<i class="fas fa-user-md"></i> Login <i class="fas fa-stethoscope"></i>
+				</button>
+
+				<div th:if="${param.error}" class="error-msg">
+					Invalid Email or Password
+				</div>
+
+				<div th:if="${param.logout}" class="success-msg" id="successMsg">
+					Logout Successful!
+				</div>
+
+				<div class="divider">or</div>
+
+				<div class="social">
+					<a href="https://accounts.google.com" target="_blank" class="social-icon google">
+						<i class="fa-brands fa-google"></i>
+					</a>
+					<a href="https://www.facebook.com" target="_blank" class="social-icon facebook">
+						<i class="fa-brands fa-facebook-f"></i>
+					</a>
+					<a href="https://appleid.apple.com" target="_blank" class="social-icon apple">
+						<i class="fa-brands fa-apple"></i>
+					</a>
+					<a href="https://www.instagram.com" target="_blank" class="social-icon instagram">
+						<i class="fa-brands fa-instagram"></i>
+					</a>
+				</div>
+
+			</form>
+
+		</div>
+
+	</div>
+
+	<script>
+		window.addEventListener("DOMContentLoaded", function () {
+
+			const successMsg = document.getElementById("successMsg");
+
+			if (successMsg) {
+
+				// ✅ Hide after 3 seconds
+				setTimeout(() => {
+					successMsg.style.display = "none";
+				}, 3000);
+
+				// ✅ REMOVE ?logout=true FROM URL (VERY IMPORTANT)
+				if (window.location.search.includes("logout")) {
+					window.history.replaceState({}, document.title, window.location.pathname);
+				}
+			}
+		});
+	</script>
+
+</body>
+
+</html>
