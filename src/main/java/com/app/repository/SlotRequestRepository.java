@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.app.constraints.AppointmentStatus;
 import com.app.domain.SlotRequest;
@@ -20,7 +21,7 @@ public interface SlotRequestRepository extends JpaRepository<SlotRequest, Long> 
 	boolean existsByPatient_IdAndAppointment_Id(Long patientId, Long appointmentId);
 
 	// =====================================================
-	// FETCH SINGLE WITH REQUIRED DETAILS (NO PAYMENTS HERE)
+	// FETCH SINGLE WITH REQUIRED DETAILS
 	// =====================================================
 	@Override
 	@EntityGraph(attributePaths = { "patient", "appointment", "appointment.doctor" })
@@ -55,16 +56,17 @@ public interface SlotRequestRepository extends JpaRepository<SlotRequest, Long> 
 	// DASHBOARD COUNTS
 	// =====================================================
 	@Query("""
-			SELECT new com.app.dto.SlotStatusCountDto(sr.status, COUNT(sr))
+			SELECT new com.app.dto.SlotStatusCountDto(sr.status, COUNT(sr.id))
 			FROM SlotRequest sr
 			GROUP BY sr.status
 			""")
 	List<SlotStatusCountDto> getSlotsStatusAndCountDto();
 
 	// =====================================================
-	// ATOMIC SLOT DECREMENT (SAFE CHECK)
+	// ATOMIC SLOT DECREMENT
 	// =====================================================
 	@Modifying(clearAutomatically = true, flushAutomatically = true)
+	@Transactional
 	@Query("""
 			UPDATE Appointment a
 			SET a.noOfSlots = a.noOfSlots - 1
@@ -77,6 +79,7 @@ public interface SlotRequestRepository extends JpaRepository<SlotRequest, Long> 
 	// SLOT RESTORE
 	// =====================================================
 	@Modifying(clearAutomatically = true, flushAutomatically = true)
+	@Transactional
 	@Query("""
 			UPDATE Appointment a
 			SET a.noOfSlots = a.noOfSlots + 1

@@ -1,16 +1,18 @@
 package com.app.dto;
 
-import com.app.constraints.SlotStatus;
-
-import lombok.AllArgsConstructor;
+import com.app.constraints.AppointmentStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor // ✅ ADD THIS (important for frameworks)
+@NoArgsConstructor
 public class SlotStatusCountDto {
 
-	private SlotStatus status;
+	private AppointmentStatus status;
 	private Long count;
+
+	public SlotStatusCountDto(AppointmentStatus status, Long count) {
+		this.status = status;
+		this.count = count;
+	}
 }
