@@ -11,14 +11,44 @@ import com.app.domain.User;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-	// ✅ FIXED (must match entity field exactly: username)
+	// ==========================================
+	// FIND USER
+	// ==========================================
 	Optional<User> findByUsername(String username);
 
+	Optional<User> findByEmail(String email);
+
+	Optional<User> findByMobile(String mobile);
+
+	// ==========================================
+	// CHECK USER EXISTS
+	// ==========================================
 	boolean existsByUsername(String username);
 
-	// ✅ FIXED (parameter binding added)
-	@Modifying
-	@Query("UPDATE User u SET u.password = :encPwd WHERE u.id = :userId")
-	void updateUserPwd(@Param("encPwd") String encPwd, @Param("userId") Long userId);
+	boolean existsByEmail(String email);
 
+	boolean existsByMobile(String mobile);
+
+	// ==========================================
+	// LOGIN USING USERNAME / EMAIL / MOBILE
+	// ==========================================
+	@Query("""
+			SELECT u
+			FROM User u
+			WHERE LOWER(u.username) = LOWER(:value)
+			   OR LOWER(u.email) = LOWER(:value)
+			   OR u.mobile = :value
+			""")
+	Optional<User> findByUsernameOrEmailOrMobile(@Param("value") String value);
+
+	// ==========================================
+	// UPDATE PASSWORD
+	// ==========================================
+	@Modifying(clearAutomatically = true, flushAutomatically = true)
+	@Query("""
+			UPDATE User u
+			SET u.password = :encPwd
+			WHERE u.id = :userId
+			""")
+	int updateUserPwd(@Param("encPwd") String encPwd, @Param("userId") Long userId);
 }

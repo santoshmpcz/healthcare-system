@@ -2,9 +2,9 @@ server:
   port: 9898
 
   error:
-    include-message: always          # ✅ SHOW ERROR (fix your issue)
-    include-binding-errors: always   # ✅ SHOW VALIDATION ERRORS
-    include-stacktrace: always       # ✅ SHOW STACKTRACE (TEMPORARY)
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: always
 
   servlet:
     session:
@@ -26,37 +26,38 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/userdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:root}
+    username: root
+    password: root
 
     hikari:
+      pool-name: SantoshHikariCP
       maximum-pool-size: 10
       minimum-idle: 5
       idle-timeout: 30000
       connection-timeout: 20000
       max-lifetime: 1800000
-      pool-name: SantoshHikariCP
-
-  servlet:
-    multipart:
-      enabled: true
-      max-file-size: 10MB        #  FIXED (realistic)
-      max-request-size: 10MB     #  FIXED
-      file-size-threshold: 2MB
-
-  thymeleaf:
-    cache: false   #  dev mode
 
   jpa:
     open-in-view: false
-    show-sql: true              #  enable for debugging
+    show-sql: true
     hibernate:
-      ddl-auto: update          #  use validate in production
+      ddl-auto: update
+
     properties:
       hibernate:
         format_sql: true
         jdbc:
           time_zone: UTC
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+      file-size-threshold: 2MB
+
+  thymeleaf:
+    cache: false
 
   web:
     resources:
@@ -84,7 +85,7 @@ razorpay:
     secret: ${RAZORPAY_SECRET}
 
 
-# ================= CUSTOM MASTER USER =================
+# ================= MASTER USER =================
 master:
   user:
     name: ${MASTER_NAME:Santosh}
@@ -93,16 +94,16 @@ master:
 
 # ================= FILE STORAGE =================
 file:
-  upload-dir: ${UPLOAD_DIR:D:/hospital/uploads/}   # better folder
+  upload-dir: ${UPLOAD_DIR:D:/hospital/uploads/}
 
 
 # ================= LOGGING =================
 logging:
   level:
     root: INFO
-    org.springframework.web: DEBUG        #  show request issues
-    org.hibernate.SQL: DEBUG              #  show SQL
-    org.hibernate.orm.jdbc.bind: TRACE    #  show values (VERY useful)
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
 
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} | Santosh Hospital | %-5level | %logger - %msg%n"

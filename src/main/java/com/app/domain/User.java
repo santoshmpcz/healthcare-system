@@ -25,19 +25,23 @@ public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_seq_tab")
 	@SequenceGenerator(name = "user_seq_tab", sequenceName = "user_seq_tab", allocationSize = 1)
-
 	private Long id;
 
 	@Column(name = "usr_display_name_col")
 	private String displayName;
 
-	@Column(name = "usr_uname_col")
+	@Column(name = "usr_uname_col", unique = true)
 	private String username;
+
+	@Column(name = "usr_email_col", unique = true)
+	private String email;
+
+	@Column(name = "usr_mobile_col", unique = true)
+	private String mobile;
 
 	@Column(name = "usr_pwd_col")
 	private String password;
 
-	// ✅ FIXED HERE
 	@Enumerated(EnumType.STRING)
 	@Column(name = "usr_urole_col")
 	private UserRoles role;

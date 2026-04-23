@@ -2,6 +2,7 @@ package com.app.controller;
 
 import java.security.Principal;
 import java.util.Optional;
+import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -34,7 +35,6 @@ public class UserController {
 	@Autowired
 	private MyMailUtil mailUtil;
 
-	// ✅ Dashboard Services
 	@Autowired
 	private DoctorService doctorService;
 
@@ -53,16 +53,6 @@ public class UserController {
 	}
 
 	/*
-	 * // 🔁 change to your actual folder
-	 * 
-	 * @GetMapping("/user-images/{img}")
-	 * 
-	 * @ResponseBody public org.springframework.core.io.Resource
-	 * getUserImage(@PathVariable String img) { return new
-	 * org.springframework.core.io.FileSystemResource( "C:/uploads/user/" + img //
-	 * 🔁 change to your actual folder ); }
-	 */
-	/*
 	 * ================= PROFILE =================
 	 */
 	@GetMapping("/profile")
@@ -79,7 +69,7 @@ public class UserController {
 	}
 
 	/*
-	 * ================= DASHBOARD =================
+	 * ================= SETUP AFTER LOGIN =================
 	 */
 	@GetMapping("/setup")
 	public String setup(HttpSession session, Principal p) {
@@ -94,8 +84,56 @@ public class UserController {
 
 		session.setAttribute("userOb", user);
 
-		// 🔥 REDIRECT TO DASHBOARD (DO NOT LOAD DATA HERE)
-		return "redirect:/user/home";
+		// Generate 6 digit OTP
+		String generatedOtp = String.valueOf(100000 + new Random().nextInt(900000));
+
+		// Store OTP in session
+		session.setAttribute("otp", generatedOtp);
+
+		// Optional: send OTP via email
+		try {
+			String text = "Your OTP for login verification is: " + generatedOtp;
+			mailUtil.send(user.getUsername(), "Login OTP Verification", text);
+		} catch (Exception e) {
+			log.error("OTP mail sending failed", e);
+		}
+
+		// Redirect to OTP page
+		return "redirect:/user/verify";
+	}
+
+	/*
+	 * ================= OTP VERIFY PAGE =================
+	 */
+	@GetMapping("/verify")
+	public String verifyOtpPage(HttpSession session) {
+
+		User user = (User) session.getAttribute("userOb");
+
+		if (user == null) {
+			return "redirect:/user/login";
+		}
+
+		return "VerifyOtp";
+	}
+
+	/*
+	 * ================= OTP VERIFY PROCESS =================
+	 */
+	@PostMapping("/verifyOtp")
+	public String processOtp(@RequestParam String otp, HttpSession session, RedirectAttributes ra) {
+
+		String sessionOtp = (String) session.getAttribute("otp");
+
+		if (sessionOtp != null && sessionOtp.equals(otp)) {
+
+			session.removeAttribute("otp");
+
+			return "redirect:/user/home";
+		}
+
+		ra.addFlashAttribute("message", "Invalid OTP!");
+		return "redirect:/user/verify";
 	}
 
 	/*
@@ -110,7 +148,6 @@ public class UserController {
 			return "redirect:/user/login";
 		}
 
-		// ✅ FIX: pass user to UI
 		model.addAttribute("user", user);
 
 		try {
@@ -155,10 +192,8 @@ public class UserController {
 
 		service.updateUserPwd(password, user.getId());
 
-		// ✅ Flash message (only once)
 		ra.addFlashAttribute("message", "Password Updated!");
 
-		// ✅ Redirect (VERY IMPORTANT)
 		return "redirect:/user/showPwdUpdate";
 	}
 
@@ -182,26 +217,23 @@ public class UserController {
 			String pwd = util.genPwd();
 			service.updateUserPwd(pwd, user.getId());
 
-			// ✅ Flash message (only once)
 			ra.addFlashAttribute("message", "Password Updated! Check your inbox!!");
 
-			// ✅ Async mail
 			new Thread(() -> {
 				try {
 					String text = "USERNAME: " + user.getUsername() + " | NEW PASSWORD: " + pwd;
+
 					mailUtil.send(user.getUsername(), "New Password", text);
+
 				} catch (Exception e) {
 					log.error("Mail sending failed", e);
 				}
 			}).start();
 
 		} else {
-			// ✅ Flash message for error
 			ra.addFlashAttribute("message", "User Not Found!");
-			
 		}
 
-		// ✅ VERY IMPORTANT (redirect)
-		return"redirect:/user/showForgot";
+		return "redirect:/user/showForgot";
 	}
 }

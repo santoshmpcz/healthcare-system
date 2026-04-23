@@ -44,32 +44,35 @@ public class SecurityConfig {
 				// ================= AUTHORIZATION =================
 				.authorizeHttpRequests(auth -> auth
 
-						// PUBLIC
+						// ===== PUBLIC =====
 						.requestMatchers("/patient/register", "/patient/save", "/user/showForgot", "/user/genNewPwd",
 								"/user/login", "/login", "/otp/**")
 						.permitAll()
 
-						// ADMIN ONLY
+						// ===== OTP FLOW (LOGGED-IN USERS ONLY) =====
+						.requestMatchers("/user/setup", "/user/verifyOtpPage", "/user/verifyOtpLogin").authenticated()
+
+						// ===== ADMIN ONLY =====
 						.requestMatchers("/doctor/register", "/doctor/save", "/doctor/accept", "/doctor/reject",
 								"/spec/**", "/slots/dashboard")
 						.hasRole(UserRoles.ADMIN.name())
 
-						// ADMIN + DOCTOR can accept/reject slots
+						// ===== ADMIN + DOCTOR =====
 						.requestMatchers("/slots/accept", "/slots/reject")
 						.hasAnyRole(UserRoles.ADMIN.name(), UserRoles.DOCTOR.name())
 
-						// DOCTOR ONLY
+						// ===== DOCTOR =====
 						.requestMatchers("/slots/doctor").hasRole(UserRoles.DOCTOR.name())
 
-						// PATIENT ONLY
+						// ===== PATIENT =====
 						.requestMatchers("/slots/book", "/slots/cancel", "/slots/patient", "/payment/**")
 						.hasRole(UserRoles.PATIENT.name())
 
-						// COMMON
+						// ===== COMMON =====
 						.requestMatchers("/appointment/view/**", "/slots/all")
 						.hasAnyRole(UserRoles.ADMIN.name(), UserRoles.DOCTOR.name(), UserRoles.PATIENT.name())
 
-						// FALLBACK
+						// ===== ANY OTHER =====
 						.anyRequest().authenticated())
 
 				// ================= ERROR HANDLING =================
@@ -81,7 +84,8 @@ public class SecurityConfig {
 
 				// ================= LOGIN =================
 				.formLogin(form -> form.loginPage("/user/login").loginProcessingUrl("/login")
-						.defaultSuccessUrl("/user/setup", true).failureUrl("/user/login?error=true").permitAll())
+						.defaultSuccessUrl("/user/setup", true) // ✅ CRITICAL FIX
+						.failureUrl("/user/login?error=true").permitAll())
 
 				// ================= LOGOUT =================
 				.logout(logout -> logout.logoutUrl("/logout").logoutSuccessUrl("/user/login?logout=true")

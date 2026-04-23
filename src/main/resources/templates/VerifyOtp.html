@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Secure OTP Verification</title>
+
+	<th:block th:replace="~{fragments/commonui :: header}"></th:block>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+			font-family: 'Inter', sans-serif;
+		}
+
+		body {
+			min-height: 100vh;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background: url('/images/AavyaShah.png') no-repeat center/cover;
+			position: relative;
+		}
+
+		/* Overlay */
+		body::before {
+			content: "";
+			position: absolute;
+			inset: 0;
+			background: rgba(15, 23, 42, 0.35);
+		}
+
+		/* Card */
+		.wrapper {
+			position: relative;
+			z-index: 1;
+			width: 100%;
+			max-width: 420px;
+			padding: 26px;
+
+			/* 🔥 MORE TRANSPARENT */
+			background: rgba(255, 255, 255, 0.45);
+
+			/* 🔥 Strong glass effect */
+			backdrop-filter: blur(18px);
+			-webkit-backdrop-filter: blur(18px);
+
+			border-radius: 16px;
+
+			/* 🔥 Soft blue border */
+			border: 1px solid rgba(59, 130, 246, 0.4);
+
+			/* Elegant shadow */
+			box-shadow:
+				0 10px 30px rgba(0, 0, 0, 0.25),
+				0 0 20px rgba(59, 130, 246, 0.15);
+
+			text-align: center;
+		}
+		.icon-circle {
+			width: 50px;
+			height: 50px;
+			margin: auto;
+			border-radius: 50%;
+			background: linear-gradient(135deg, #3b82f6, #6366f1);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: #fff;
+			margin-bottom: 10px;
+		}
+
+		h2 {
+			font-size: 20px;
+			margin-bottom: 5px;
+		}
+
+		.subtitle {
+			font-size: 12px;
+			color: #64748b;
+			margin-bottom: 18px;
+		}
+
+		/* OTP */
+		.otp-boxes {
+			display: flex;
+			gap: 6px;
+			justify-content: space-between;
+			margin-bottom: 12px;
+		}
+
+		.otp-input {
+			width: 40px;
+			height: 46px;
+			border-radius: 8px;
+			border: 1px solid #cbd5e1;
+			text-align: center;
+			font-size: 16px;
+			font-weight: 600;
+		}
+
+		.otp-input:focus {
+			border-color: #4f46e5;
+			outline: none;
+		}
+
+		/* Timer */
+		.timer-box {
+			font-size: 12px;
+			margin-bottom: 8px;
+		}
+
+		.timer-box span {
+			color: #2563eb;
+			font-weight: 600;
+		}
+
+		/* Resend */
+		.resend {
+			font-size: 12px;
+			color: #2563eb;
+			cursor: pointer;
+			margin-bottom: 12px;
+			display: none;
+			font-weight: 500;
+		}
+
+		/* CAPTCHA */
+		.captcha-box {
+			padding: 10px;
+			border-radius: 10px;
+			background: rgba(255, 255, 255, 0.6);
+			border: 1px solid #e2e8f0;
+		}
+
+		.captcha-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			font-size: 12px;
+			margin-bottom: 5px;
+		}
+
+		.refresh {
+			cursor: pointer;
+			color: #2563eb;
+		}
+
+		#captchaCode {
+			font-size: 18px;
+			letter-spacing: 3px;
+			font-weight: 600;
+			margin-bottom: 6px;
+		}
+
+		#captchaInput {
+			width: 100%;
+			height: 36px;
+			border-radius: 6px;
+			border: 1px solid #cbd5e1;
+			padding: 6px;
+		}
+
+		/* Button */
+		.verify-btn {
+			width: 100%;
+			height: 40px;
+			margin-top: 12px;
+			border: none;
+			border-radius: 8px;
+			background: linear-gradient(135deg, #2563eb, #4f46e5);
+			color: #fff;
+			font-weight: 600;
+			cursor: pointer;
+		}
+
+		.verify-btn:disabled {
+			background: #94a3b8;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div class="wrapper">
+
+		<div class="icon-circle">
+			<i class="fa-solid fa-shield-halved"></i>
+		</div>
+
+		<h2>Verify OTP</h2>
+		<div class="subtitle">Enter 6-digit code</div>
+
+		<form th:action="@{/user/verifyOtp}" method="post" onsubmit="return validateForm()">
+
+			<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+			<input type="hidden" name="otp" id="finalOtp" />
+
+			<div class="otp-boxes">
+				<input class="otp-input" maxlength="1">
+				<input class="otp-input" maxlength="1">
+				<input class="otp-input" maxlength="1">
+				<input class="otp-input" maxlength="1">
+				<input class="otp-input" maxlength="1">
+				<input class="otp-input" maxlength="1">
+			</div>
+
+			<div class="timer-box">
+				Expires in <span id="timer">02:00</span>
+			</div>
+
+			<div class="resend" id="resendBtn" onclick="resendOtp()">
+				Resend OTP
+			</div>
+
+			<div class="captcha-box">
+				<div class="captcha-header">
+					<span>Security Check</span>
+					<i class="fa-solid fa-rotate refresh" onclick="generateCaptcha()"></i>
+				</div>
+
+				<div id="captchaCode"></div>
+
+				<input type="text" id="captchaInput" placeholder="Enter CAPTCHA" required>
+			</div>
+
+			<button type="submit" class="verify-btn" id="submitBtn">
+				Verify
+			</button>
+
+		</form>
+
+	</div>
+
+	<script>
+		const inputs = document.querySelectorAll(".otp-input");
+		const finalOtp = document.getElementById("finalOtp");
+		const submitBtn = document.getElementById("submitBtn");
+		const resendBtn = document.getElementById("resendBtn");
+		const timer = document.getElementById("timer");
+
+		inputs[0].focus();
+
+		inputs.forEach((input, index) => {
+			input.addEventListener("input", function () {
+				this.value = this.value.replace(/[^0-9]/g, '');
+				if (this.value && index < inputs.length - 1) {
+					inputs[index + 1].focus();
+				}
+				updateOtp();
+			});
+		});
+
+		function updateOtp() {
+			let otp = "";
+			inputs.forEach(i => otp += i.value);
+			finalOtp.value = otp;
+		}
+
+		function generateCaptcha() {
+			const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+			let cap = "";
+			for (let i = 0; i < 5; i++) {
+				cap += chars[Math.floor(Math.random() * chars.length)];
+			}
+			document.getElementById("captchaCode").innerText = cap;
+		}
+
+		function validateForm() {
+			updateOtp();
+
+			if (finalOtp.value.length !== 6) {
+				alert("Enter complete OTP");
+				return false;
+			}
+
+			const captcha = document.getElementById("captchaInput").value.trim();
+			const actual = document.getElementById("captchaCode").innerText.trim();
+
+			if (captcha.toUpperCase() !== actual.toUpperCase()) {
+				alert("Invalid CAPTCHA");
+				generateCaptcha();
+				return false;
+			}
+			return true;
+		}
+
+		/* TIMER */
+		let sec = 120;
+		let interval = startTimer();
+
+		function startTimer() {
+			return setInterval(() => {
+				const m = String(Math.floor(sec / 60)).padStart(2, '0');
+				const s = String(sec % 60).padStart(2, '0');
+				timer.innerText = `${m}:${s}`;
+
+				if (sec <= 0) {
+					clearInterval(interval);
+					submitBtn.disabled = true;
+					resendBtn.style.display = "block";
+					timer.innerText = "Expired";
+				}
+				sec--;
+			}, 1000);
+		}
+
+		function resendOtp() {
+			// call backend here if needed
+
+			sec = 120;
+			submitBtn.disabled = false;
+			resendBtn.style.display = "none";
+
+			clearInterval(interval);
+			interval = startTimer();
+
+			generateCaptcha();
+			alert("OTP resent successfully");
+		}
+
+		generateCaptcha();
+	</script>
+
+</body>
+
+</html>
