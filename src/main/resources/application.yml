@@ -63,7 +63,6 @@ spring:
     resources:
       static-locations:
         - classpath:/static/
-        - file:///D:/hospital/doctor-images/
 
   mail:
     host: smtp.gmail.com
@@ -78,6 +77,11 @@ spring:
             enable: true
 
 
+# ================= FILE STORAGE =================
+file:
+  upload-dir: D:/hospital/doctor-images/
+
+
 # ================= RAZORPAY =================
 razorpay:
   key:
@@ -90,11 +94,6 @@ master:
   user:
     name: ${MASTER_NAME:Santosh}
     email: ${MASTER_EMAIL:santoshtietech@gmail.com}
-
-
-# ================= FILE STORAGE =================
-file:
-  upload-dir: ${UPLOAD_DIR:D:/hospital/uploads/}
 
 
 # ================= LOGGING =================
