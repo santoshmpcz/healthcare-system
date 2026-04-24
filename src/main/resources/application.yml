@@ -1,5 +1,5 @@
 server:
-  port: 9898
+  port: ${PORT:8080}
 
   error:
     include-message: always
@@ -25,10 +25,9 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/userdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-    username: root
-    password: root
-
+    url: ${SPRING_DATASOURCE_URL}
+    # ❌ REMOVE username & password (important for Railway)
+    
     hikari:
       pool-name: SantoshHikariCP
       maximum-pool-size: 10
@@ -77,26 +76,26 @@ spring:
             enable: true
 
 
-# ================= FILE STORAGE =================
+# File Upload Path (Linux compatible)
 file:
-  upload-dir: D:/hospital/doctor-images/
+  upload-dir: /tmp/uploads/
 
 
-# ================= RAZORPAY =================
+# Razorpay
 razorpay:
   key:
     id: ${RAZORPAY_KEY}
     secret: ${RAZORPAY_SECRET}
 
 
-# ================= MASTER USER =================
+# Master User
 master:
   user:
     name: ${MASTER_NAME:Santosh}
     email: ${MASTER_EMAIL:santoshtietech@gmail.com}
 
 
-# ================= LOGGING =================
+# Logging
 logging:
   level:
     root: INFO
