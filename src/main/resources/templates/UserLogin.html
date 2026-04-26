@@ -6,97 +6,144 @@
 	<title>Login</title>
 
 	<th:block th:replace="~{fragments/commonui :: header}"></th:block>
-
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 	<style>
 		body {
 			margin: 0;
 			font-family: 'Segoe UI', sans-serif;
-			height: 100vh;
+			min-height: 100vh;
 			background: url('/images/AavyaShah.png') no-repeat center center fixed;
 			background-size: cover;
-			display: flex;
-			align-items: center;
-			justify-content: center;
 		}
 
 		body::before {
 			content: "";
-			position: absolute;
-			width: 100%;
-			height: 100%;
-			background: rgba(0, 0, 0, 0.35);
+			position: fixed;
+			inset: 0;
+			background: rgba(0, 0, 0, 0.55);
+			z-index: 0;
 		}
 
 		.container-main {
 			position: relative;
-			z-index: 2;
+			z-index: 1;
 			display: flex;
-			width: 90%;
-			max-width: 1200px;
-			justify-content: space-between;
+			width: 95%;
+			max-width: 1400px;
+			margin: auto;
+			padding: 40px 20px;
+			gap: 40px;
 			align-items: center;
 		}
 
+		/* LEFT CLEAN TEXT */
 		.left-content {
+			flex: 1.4;
 			color: #fff;
 		}
 
-		.logo {
-			font-size: 22px;
-			font-weight: 600;
+		.main-title {
+			font-size: 50px;
+			font-weight: 700;
+			margin-bottom: 10px;
+		}
+
+		.tagline {
+			font-size: 18px;
+			opacity: 0.9;
 			margin-bottom: 30px;
 		}
 
-		.left-content h1 {
-			font-size: 60px;
+		.simple-list {
+			margin: 20px 0;
+		}
+
+		.simple-list div {
+			margin: 10px 0;
+			font-size: 16px;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+
+		.simple-list i {
+			color: #7dffb3;
+		}
+
+		.section-title {
+			margin-top: 25px;
+			font-size: 22px;
 			font-weight: 600;
 		}
 
-		.left-content p {
-			margin-top: 20px;
-			font-size: 18px;
+		.section-text {
+			margin-top: 8px;
+			font-size: 16px;
 			opacity: 0.9;
 		}
 
+		.services {
+			margin-top: 25px;
+			display: flex;
+			gap: 25px;
+		}
+
+		.services a {
+			color: white;
+			text-decoration: none;
+			font-size: 16px;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			transition: 0.3s;
+		}
+
+		.services a:hover {
+			color: #7dffb3;
+		}
+
+		/* ✅ MORE TRANSPARENT LOGIN CARD */
 		.login-card {
 			width: 380px;
 			padding: 40px;
 			border-radius: 25px;
-			background: rgba(255, 255, 255, 0.15);
-			border: 1px solid rgba(255, 255, 255, 0.3);
-			box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+
+			/* ULTRA TRANSPARENT */
+			background: rgba(255, 255, 255, 0.003);
+
+			/* very subtle border */
+			border: 1px solid rgba(255, 255, 255, 0.05);
+
+			/* remove heavy shadow */
+			box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+
+			/* minimal blur so background is clearly visible */
+			backdrop-filter: blur(2px);
+			-webkit-backdrop-filter: blur(2px);
+
 			color: #fff;
 		}
 
-		.login-card h2 {
+		.login-card h2,
+		.sub-text {
 			text-align: center;
 		}
 
 		.sub-text {
-			text-align: center;
 			margin-bottom: 20px;
+			opacity: 0.9;
 		}
 
 		.input-field {
 			display: flex;
 			align-items: center;
-			padding: 6px 10px;
+			padding: 12px 16px;
 			border-radius: 30px;
 			margin-bottom: 15px;
-			border: 1px solid rgba(255, 255, 255, 0.4);
-		}
 
-		.input-icon {
-			width: 35px;
-			height: 35px;
-			border-radius: 50%;
-			background: rgba(255, 255, 255, 0.5);
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			margin-right: 10px;
+			background: rgba(255, 255, 255, 0.02);
+			border: 1px solid rgba(255, 255, 255, 0.2);
 		}
 
 		.input-field input {
@@ -108,12 +155,25 @@
 		}
 
 		.input-field input::placeholder {
-			color: #eee;
+			color: rgba(255, 255, 255, 0.7);
+		}
+
+		/* REMOVE AUTOFILL GREY BACKGROUND */
+		input:-webkit-autofill,
+		input:-webkit-autofill:hover,
+		input:-webkit-autofill:focus,
+		input:-webkit-autofill:active {
+			-webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+			box-shadow: 0 0 0 1000px transparent inset !important;
+			-webkit-text-fill-color: #fff !important;
+			transition: background-color 5000s ease-in-out 0s;
+		}
+
+		.input-icon {
+			margin-right: 12px;
 		}
 
 		.extra {
-			display: flex;
-			flex-direction: column;
 			font-size: 14px;
 			margin: 10px 0 15px;
 		}
@@ -123,29 +183,15 @@
 			justify-content: space-between;
 		}
 
-		.register-row {
-			text-align: center;
-			margin-top: 8px;
-		}
-
-		input:-webkit-autofill {
-			-webkit-text-fill-color: #fff;
-			transition: background-color 5000s ease-in-out 0s;
-		}
-
-		.register-link {
-			color: #6c63ff;
-			font-weight: 500;
+		.top-row a,
+		.register-row a {
+			color: #fff;
 			text-decoration: none;
 		}
 
-		.register-link:hover {
-			text-decoration: underline;
-			color: #5a54d1;
-		}
-
-		.register-row a:hover {
-			text-decoration: underline;
+		.register-row {
+			text-align: center;
+			margin-top: 8px;
 		}
 
 		.btn-login {
@@ -153,32 +199,15 @@
 			padding: 14px;
 			border-radius: 30px;
 			border: none;
-			background: linear-gradient(135deg, #FC46AD, #167F79, #833AB4, #413BB3, #3aa0ff);
+			background: linear-gradient(135deg, #FC46AD, #167F79, #833AB4, #3aa0ff);
 			color: white;
 			font-size: 16px;
 			font-weight: 600;
 			cursor: pointer;
-			transition: 0.3s;
 		}
 
 		.btn-login:hover {
-			transform: scale(1.05);
-		}
-
-		.error-msg {
-			margin-top: 10px;
-			color: #ff4d4d;
-			font-size: 14px;
-			font-weight: bold;
-			text-align: center;
-		}
-
-		.success-msg {
-			margin-top: 10px;
-			color: #167F79;
-			font-size: 14px;
-			font-weight: bold;
-			text-align: center;
+			transform: scale(1.03);
 		}
 
 		.divider {
@@ -199,31 +228,33 @@
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			text-decoration: none;
 			color: white;
-			font-size: 18px;
-			transition: 0.3s ease;
 		}
 
-		.social-icon.google {
+		.google {
 			background: #db4437;
 		}
 
-		.social-icon.facebook {
+		.facebook {
 			background: #1877f2;
 		}
 
-		.social-icon.apple {
+		.apple {
 			background: #000;
 		}
 
-		.social-icon.instagram {
-			background: linear-gradient(45deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5);
+		.instagram {
+			background: linear-gradient(45deg, #feda75, #d62976, #4f5bd5);
 		}
 
-		.social-icon:hover {
-			transform: scale(1.1);
-			box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+		.error-msg {
+			color: #ff4d4d;
+			text-align: center;
+		}
+
+		.success-msg {
+			color: #22c55e;
+			text-align: center;
 		}
 	</style>
 </head>
@@ -232,17 +263,32 @@
 
 	<div class="container-main">
 
+		<!-- LEFT -->
 		<div class="left-content">
-			<div class="logo">
-				<h1><i class="fa fa-heartbeat"></i> HealthCare</h1>
+			<h2 class="main-title">Welcome to Santosh Hospital</h2>
+			<p class="tagline">Compassionate Care. Advanced Medicine. Trusted by Thousands.</p>
+
+			<div class="simple-list">
+				<div><i class="fa-solid fa-shield-heart"></i> Secure & Confidential</div>
+				<div><i class="fa-solid fa-users"></i> Trusted by Patients</div>
+				<div><i class="fa-solid fa-headset"></i> 24/7 Care & Support</div>
 			</div>
-			<h1>
-				<i class="fas fa-user-md"></i> Care You<br><br>
-				<i class="fas fa-stethoscope"></i> &nbsp;Can Trust
-			</h1>
-			<p>Providing quality healthcare services with compassion and excellence</p>
+
+			<div class="section-title">Announcements</div>
+			<div class="section-text">OPD: 8 AM – 2 PM (Mon-Sat)</div>
+			<div class="section-text">Flu Vaccination Available</div>
+
+			<div class="section-title">Emergency</div>
+			<div class="section-text">+91 9575385110 / 9424775589</div>
+			<div class="section-text">Ambulance: 108 / 102</div>
+
+			<div class="section-title">Address</div>
+			<div class="section-text"><i class="fa-solid fa-location-dot"></i> Harrahawa, Post Tiyara</div>
+			<div class="section-text">Singrauli, Madhya Pradesh – 486886</div>
+			<div class="section-text">India</div>
 		</div>
 
+		<!-- RIGHT LOGIN -->
 		<div class="login-card">
 
 			<h2>Welcome Back</h2>

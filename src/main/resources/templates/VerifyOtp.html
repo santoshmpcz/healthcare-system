@@ -150,11 +150,27 @@
 			color: #2563eb;
 		}
 
+		/* ✅ GREEN INDUSTRY STANDARD CAPTCHA */
 		#captchaCode {
-			font-size: 18px;
-			letter-spacing: 3px;
-			font-weight: 600;
-			margin-bottom: 6px;
+			font-size: 20px;
+			letter-spacing: 4px;
+			font-weight: 700;
+
+			/* 🔥 main dark green */
+			color: #14532d;
+
+			margin-bottom: 8px;
+			user-select: none;
+			position: relative;
+		}
+
+		/* slight variation for realism */
+		#captchaCode span:nth-child(odd) {
+			color: #166534;
+		}
+
+		#captchaCode span:nth-child(even) {
+			color: #15803d;
 		}
 
 		#captchaInput {

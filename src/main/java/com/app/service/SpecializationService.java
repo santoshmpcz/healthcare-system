@@ -42,4 +42,6 @@ public interface SpecializationService {
 	// ✅ NEW (Recommended for your requirement)
 	// Returns specialization including icon + color metadata
 	List<SpecializationDTO> getAllSpecializationsWithMeta();
+
+	Page<SpecializationDTO> searchSpecializations(String keyword, Pageable pageable);
 }

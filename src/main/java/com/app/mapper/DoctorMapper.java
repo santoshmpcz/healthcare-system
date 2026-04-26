@@ -43,7 +43,8 @@ public class DoctorMapper {
 		dto.setNationality(d.getNationality());
 
 		dto.setNote(d.getNote());
-		dto.setPhoto(d.getPhoto());
+		/* dto.setPhoto(d.getPhoto()); */
+		dto.setImageUrl(d.getImageUrl());
 
 		// ✅ Specialization Mapping + META
 		Specialization spec = d.getSpecialization();
@@ -99,7 +100,8 @@ public class DoctorMapper {
 		d.setNationality(dto.getNationality());
 
 		d.setNote(dto.getNote());
-		d.setPhoto(dto.getPhoto());
+		// d.setPhoto(dto.getPhoto());
+		d.setImageUrl(dto.getImageUrl());
 
 		// ✅ Specialization Mapping
 		if (dto.getSpecializationId() != null) {

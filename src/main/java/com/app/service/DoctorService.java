@@ -25,12 +25,14 @@ public interface DoctorService {
 
 	Optional<DoctorDTO> getDoctorByEmail(String email);
 
-	
 	Page<DoctorDTO> getAllDoctors(Pageable pageable);
 
 	List<DoctorDTO> getAllDoctorsForExport();
 
 	// ================= SEARCH =================
+	/**
+	 * 🎯 Advanced Filter Search (Specification-based)
+	 */
 	Page<DoctorDTO> searchDoctors(DoctorDTO filter, Pageable pageable);
 
 	// ================= UTIL =================

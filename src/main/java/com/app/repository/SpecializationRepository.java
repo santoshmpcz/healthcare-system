@@ -3,6 +3,8 @@ package com.app.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -23,6 +25,11 @@ public interface SpecializationRepository extends JpaRepository<Specialization, 
 	@Query("SELECT s.id, s.specName FROM Specialization s")
 	List<Object[]> getSpecIdAndName();
 
+	@Query("SELECT s FROM Specialization s " +
+		       "WHERE (:keyword IS NULL OR :keyword = '' OR " +
+		       "LOWER(s.specName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+		       "LOWER(s.specCode) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+		Page<Specialization> search(@Param("keyword") String keyword, Pageable pageable);
 	// ================= DROPDOWN DATA =================
 	List<Specialization> findAllByOrderBySpecNameAsc();
 

@@ -79,8 +79,12 @@ public class Doctor {
 	@Column(name = "doc_note_col")
 	private String note;
 
-	@Column(name = "doc_img_col")
-	private String photo;
+	/*
+	 * @Column(name = "doc_img_col") private String photo;
+	 */
+
+	@Column(name = "doc_img_col",length = 500)
+	private String imageUrl;
 
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "spec_id_fk_col")

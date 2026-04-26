@@ -1,14 +1,21 @@
 package com.app.controller;
 
 import java.awt.Color;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import org.apache.poi.ss.usermodel.*;
+// Apache POI
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+// Spring
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -18,13 +25,16 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+// App
 import com.app.dto.SpecializationDTO;
 import com.app.exception.SpecializationNotFoundException;
 import com.app.service.SpecializationService;
 
+// iText
 import com.lowagie.text.Document;
 import com.lowagie.text.Element;
-import com.lowagie.text.Paragraph;
+import com.lowagie.text.Font;
+import com.lowagie.text.PageSize;
 import com.lowagie.text.Phrase;
 import com.lowagie.text.pdf.*;
 
@@ -41,21 +51,20 @@ public class SpecializationController {
 
 	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
 
-	// ================= REGISTER =================
+	// ========================= REGISTER =========================
 	@GetMapping("/register")
 	public String showRegister(Model model) {
 		model.addAttribute("specialization", new SpecializationDTO());
 		return "SpecializationRegister";
 	}
 
-	// ================= SAVE =================
+	// ========================= SAVE =========================
 	@PostMapping("/save")
 	public String save(@ModelAttribute("specialization") @Valid SpecializationDTO dto, BindingResult errors,
 			RedirectAttributes attributes) {
 
-		if (errors.hasErrors()) {
+		if (errors.hasErrors())
 			return "SpecializationRegister";
-		}
 
 		try {
 			Long id = service.saveSpecialization(dto);
@@ -68,19 +77,29 @@ public class SpecializationController {
 		return "redirect:/spec/all";
 	}
 
-	// ================= VIEW ALL =================
+	// ========================= VIEW =========================
 	@GetMapping("/all")
-	public String viewAll(@PageableDefault(size = 5) Pageable pageable, Model model) {
+	public String viewAll(@RequestParam(required = false) String keyword, @RequestParam(required = false) String filter,
+			@PageableDefault(page = 0, size = 5, sort = "id") Pageable pageable, Model model) {
 
-		Page<SpecializationDTO> page = service.getAllSpecializations(pageable);
+		Page<SpecializationDTO> page;
+
+		if ((keyword != null && !keyword.trim().isEmpty())) {
+			page = service.searchSpecializations(keyword, pageable);
+		} else {
+			page = service.getAllSpecializations(pageable);
+		}
 
 		model.addAttribute("list", page.getContent());
 		model.addAttribute("page", page);
+		model.addAttribute("keyword", keyword);
+		model.addAttribute("filter", filter);
 
 		return "SpecializationData";
 	}
 
-	// ================= DELETE =================
+	// ========================= DELETE =========================
+
 	@GetMapping("/delete")
 	public String delete(@RequestParam Long id, RedirectAttributes attributes) {
 
@@ -94,23 +113,21 @@ public class SpecializationController {
 		return "redirect:/spec/all";
 	}
 
-	// ================= EDIT =================
+	// ========================= EDIT =========================
 	@GetMapping("/edit")
 	public String showEdit(@RequestParam Long id, Model model, RedirectAttributes attributes) {
 
 		try {
 			SpecializationDTO dto = service.getOneSpecialization(id);
-
 			model.addAttribute("specialization", dto);
 			return "SpecializationEdit";
-
 		} catch (SpecializationNotFoundException e) {
 			attributes.addFlashAttribute("message", e.getMessage());
 			return "redirect:/spec/all";
 		}
 	}
 
-	// ================= UPDATE =================
+	// ========================= UPDATE =========================
 	@PostMapping("/update")
 	public String update(@ModelAttribute("specialization") @Valid SpecializationDTO dto, BindingResult errors,
 			RedirectAttributes attributes, Model model) {
@@ -122,9 +139,7 @@ public class SpecializationController {
 
 		try {
 			service.updateSpecialization(dto.getId(), dto);
-
 			attributes.addFlashAttribute("message", "Record (" + dto.getId() + ") updated successfully");
-
 		} catch (Exception e) {
 			model.addAttribute("message", e.getMessage());
 			model.addAttribute("specialization", dto);
@@ -134,97 +149,124 @@ public class SpecializationController {
 		return "redirect:/spec/all";
 	}
 
-	// ================= PDF EXPORT =================
+	// ========================= PDF EXPORT =========================
 	@GetMapping("/pdf")
 	public void exportPdf(HttpServletResponse response) throws Exception {
 
 		response.setContentType("application/pdf");
-		response.setHeader("Content-Disposition", "attachment; filename=Specialization_Report.pdf");
+		response.setHeader("Content-Disposition", "attachment; filename=specialization.pdf");
 
-		Document document = new Document();
-		PdfWriter writer = PdfWriter.getInstance(document, response.getOutputStream());
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+		Document document = new Document(PageSize.A4, 25, 25, 360, 35);
+		PdfWriter writer = PdfWriter.getInstance(document, baos);
+
+		final PdfReader reader = new PdfReader(
+				new ClassPathResource("static/myres/specialization.pdf").getInputStream());
 
 		writer.setPageEvent(new PdfPageEventHelper() {
 			@Override
 			public void onEndPage(PdfWriter writer, Document document) {
 
-				com.lowagie.text.Font footerFont = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 9);
+				PdfContentByte canvas = writer.getDirectContentUnder();
+				PdfImportedPage template = writer.getImportedPage(reader, 1);
+
+				// SAME BACKGROUND ON EVERY PAGE
+				canvas.addTemplate(template, 0, 0);
+
+				Font footerFont = new Font(Font.HELVETICA, 9, Font.NORMAL, Color.DARK_GRAY);
 
 				Phrase footer = new Phrase(
-						"Generated on: " + LocalDateTime.now().format(FORMATTER) + " | Page " + writer.getPageNumber(),
+						"Generated : " + LocalDateTime.now().format(FORMATTER) + " | Page " + writer.getPageNumber(),
 						footerFont);
 
-				ColumnText.showTextAligned(writer.getDirectContent(), Element.ALIGN_RIGHT, footer,
-						document.right() - 20, document.bottom() - 10, 0);
+				ColumnText.showTextAligned(writer.getDirectContent(), Element.ALIGN_RIGHT, footer, document.right(),
+						document.bottom() - 10, 0);
 			}
 		});
 
 		document.open();
 
-		com.lowagie.text.Font titleFont = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 18,
-				com.lowagie.text.Font.BOLD, Color.BLUE);
-
-		Paragraph title = new Paragraph("SPECIALIZATION REPORT", titleFont);
-		title.setAlignment(Element.ALIGN_CENTER);
-		title.setSpacingAfter(20);
-		document.add(title);
-
 		PdfPTable table = new PdfPTable(4);
-		table.setWidthPercentage(100);
+		table.setWidthPercentage(92);
+		table.setWidths(new float[] { 1.2f, 2f, 3f, 4f });
+		table.setHeaderRows(1); // repeat header on next pages
+		table.setSplitLate(false); // allow row split
 
-		addPdfHeader(table, "ID");
+		addPdfHeader(table, "S.NO");
 		addPdfHeader(table, "CODE");
 		addPdfHeader(table, "NAME");
 		addPdfHeader(table, "NOTE");
 
-		// ✅ IMPORTANT FIX
 		List<SpecializationDTO> list = service.getAllSpecializationsWithMeta();
 
+		int serialNo = 1;
 		for (SpecializationDTO dto : list) {
-			table.addCell(String.valueOf(dto.getId()));
-			table.addCell(dto.getSpecCode());
-			table.addCell(dto.getSpecName());
-			table.addCell(dto.getSpecNote());
+			addPdfCell(table, String.valueOf(serialNo++)); // serial starts from 1
+			addPdfCell(table, dto.getSpecCode());
+			addPdfCell(table, dto.getSpecName());
+			addPdfCell(table, dto.getSpecNote());
 		}
 
 		document.add(table);
+
 		document.close();
+		reader.close();
+
+		byte[] pdfBytes = baos.toByteArray();
+
+		response.getOutputStream().write(pdfBytes);
+		response.getOutputStream().flush();
 	}
 
+	// ========================= PDF HEADER =========================
 	private void addPdfHeader(PdfPTable table, String text) {
 
-		com.lowagie.text.Font headFont = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 12,
-				com.lowagie.text.Font.BOLD);
+		Font headFont = new Font(Font.HELVETICA, 11, Font.BOLD, Color.BLACK);
 
 		PdfPCell cell = new PdfPCell(new Phrase(text, headFont));
-		cell.setBackgroundColor(Color.LIGHT_GRAY);
 		cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+		cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+		cell.setPadding(8f);
+		cell.setBorderWidth(0.8f);
 
 		table.addCell(cell);
 	}
 
-	// ================= EXCEL EXPORT =================
+	// ========================= PDF CELL =========================
+	private void addPdfCell(PdfPTable table, String text) {
+
+		Font bodyFont = new Font(Font.HELVETICA, 10, Font.NORMAL, Color.BLACK);
+
+		PdfPCell cell = new PdfPCell(new Phrase(text, bodyFont));
+		cell.setPadding(6f);
+		cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+		cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+		cell.setBorderWidth(0.8f);
+
+		table.addCell(cell);
+	}
+
+	// ========================= EXCEL EXPORT =========================
 	@GetMapping("/excel")
 	public void exportExcel(HttpServletResponse response) throws IOException {
 
 		response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-
 		response.setHeader("Content-Disposition", "attachment; filename=Specialization_Report.xlsx");
 
-		// ✅ IMPORTANT FIX
 		List<SpecializationDTO> list = service.getAllSpecializationsWithMeta();
 
 		Workbook workbook = new XSSFWorkbook();
 		Sheet sheet = workbook.createSheet("SPECIALIZATION");
 
 		CellStyle headerStyle = workbook.createCellStyle();
-		org.apache.poi.ss.usermodel.Font excelFont = workbook.createFont();
-		excelFont.setBold(true);
-		headerStyle.setFont(excelFont);
+		org.apache.poi.ss.usermodel.Font font = workbook.createFont();
+		font.setBold(true);
+		headerStyle.setFont(font);
 
-		String[] columns = { "ID", "CODE", "NAME", "NOTE" };
+		String[] columns = { "S.NO", "CODE", "NAME", "NOTE" };
 
-		Row headerRow = sheet.createRow(0);
+		org.apache.poi.ss.usermodel.Row headerRow = sheet.createRow(0);
 
 		for (int i = 0; i < columns.length; i++) {
 			Cell cell = headerRow.createCell(i);
@@ -233,10 +275,11 @@ public class SpecializationController {
 		}
 
 		int rowCount = 1;
+		int serialNo = 1;
 
 		for (SpecializationDTO dto : list) {
-			Row row = sheet.createRow(rowCount++);
-			row.createCell(0).setCellValue(dto.getId());
+			org.apache.poi.ss.usermodel.Row row = sheet.createRow(rowCount++);
+			row.createCell(0).setCellValue(serialNo++);
 			row.createCell(1).setCellValue(dto.getSpecCode());
 			row.createCell(2).setCellValue(dto.getSpecName());
 			row.createCell(3).setCellValue(dto.getSpecNote());

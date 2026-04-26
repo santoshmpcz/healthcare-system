@@ -84,7 +84,7 @@ public class DoctorDTO implements Serializable {
 	@Size(max = 500)
 	private String note;
 
-	private String photo;
+	private String imageUrl;
 
 	// ================= SPECIALIZATION =================
 

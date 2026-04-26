@@ -206,7 +206,7 @@
 
 			<div class="profile-wrapper">
 				<img class="profile-img"
-					th:src="${doctor.photo != null} ? @{/doctor-images/{img}(img=${doctor.photo})} : @{/images/no-image.png}">
+					th:src="${doctor.imageUrl != null} ? ${doctor.imageUrl} : @{/images/no-image.png}"
 			</div>
 
 			<div class="body">

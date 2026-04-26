@@ -3,6 +3,8 @@ package com.app.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -50,12 +52,23 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long>, JpaSpecif
 
 	// ================= GLOBAL SEARCH =================
 	@Query("""
-			SELECT d FROM Doctor d
-			WHERE LOWER(d.firstName) LIKE LOWER(CONCAT('%', :key, '%'))
-			OR LOWER(d.lastName) LIKE LOWER(CONCAT('%', :key, '%'))
-			OR LOWER(d.address) LIKE LOWER(CONCAT('%', :key, '%'))
+			    SELECT d FROM Doctor d
+			    WHERE
+			        LOWER(d.firstName) LIKE LOWER(CONCAT('%', :key, '%'))
+			        OR LOWER(d.lastName) LIKE LOWER(CONCAT('%', :key, '%'))
+			        OR LOWER(CONCAT(COALESCE(d.firstName, ''), ' ', COALESCE(d.lastName, '')))
+			            LIKE LOWER(CONCAT('%', :key, '%'))
+			        OR LOWER(d.address) LIKE LOWER(CONCAT('%', :key, '%'))
+			    ORDER BY
+			        CASE
+			            WHEN LOWER(CONCAT(d.firstName, ' ', d.lastName)) = LOWER(:key) THEN 1
+			            WHEN LOWER(d.firstName) = LOWER(:key) THEN 2
+			            WHEN LOWER(d.lastName) = LOWER(:key) THEN 3
+			            WHEN LOWER(CONCAT(d.firstName, ' ', d.lastName)) LIKE LOWER(CONCAT(:key, '%')) THEN 4
+			            ELSE 5
+			        END
 			""")
-	List<Doctor> searchDoctor(@Param("key") String key);
+	Page<Doctor> searchDoctor(@Param("key") String key, Pageable pageable);
 
 	// ================= ID + NAME =================
 	@Query("""

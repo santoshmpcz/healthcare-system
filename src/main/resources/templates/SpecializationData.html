@@ -1,109 +1,144 @@
 <!DOCTYPE html>
-<html xmlns:th="https://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 
 <head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 	<title>Specialization Data</title>
 
-	<!-- Bootstrap + Icons -->
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 	<style>
-		/* ===== BACKGROUND ===== */
 		body {
 			font-family: 'Segoe UI', sans-serif;
 			background: url('/images/AavyaShah.png') no-repeat center center fixed;
 			background-size: cover;
+			min-height: 100vh;
 		}
 
-		/* ===== GLASS CARD (MORE TRANSPARENT) ===== */
 		.glass-card {
 			background: rgba(255, 255, 255, 0.55);
 			backdrop-filter: blur(10px);
-			border-radius: 16px;
-			box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+			border-radius: 18px;
 			padding: 25px;
+			box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
 		}
 
-		/* ===== HEADER ===== */
 		.page-title {
-			color: #ffffff;
+			color: #fff;
+			font-weight: 700;
 		}
 
 		.page-subtitle {
-			color: rgba(255, 255, 255, 0.7);
+			color: rgba(255, 255, 255, 0.85);
+			font-size: 14px;
 		}
-		/* ===== TOOLBAR ===== */
+
 		.toolbar {
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
-			margin-bottom: 20px;
 			flex-wrap: wrap;
-			gap: 10px;
+			gap: 12px;
+			margin-bottom: 18px;
 		}
 
-		.search-box {
-			border-radius: 30px;
-			padding-left: 40px;
-		}
-
+		/* SEARCH BOX */
 		.search-wrapper {
 			position: relative;
 		}
 
 		.search-wrapper i {
 			position: absolute;
-			top: 10px;
-			left: 12px;
-			color: gray;
+			left: 14px;
+			top: 50%;
+			transform: translateY(-50%);
+			color: #6c757d;
 		}
 
-		/* ===== TABLE (TRANSPARENT) ===== */
+		.search-box {
+			height: 42px;
+			border-radius: 25px;
+			padding-left: 38px;
+			min-width: 240px;
+			border: 1px solid #d0d7e2;
+			background: #f8fafc;
+			transition: all 0.2s ease;
+		}
+
+		.search-box:focus {
+			background: #fff;
+			border-color: #2563eb;
+			box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+		}
+
+		/* BUTTONS */
+		.filter-btn,
+		.reset-btn {
+			height: 42px;
+			border-radius: 25px;
+			padding: 0 16px;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			font-weight: 500;
+			transition: all 0.2s ease;
+		}
+
+		/* PRIMARY FILTER BUTTON */
+		.filter-btn {
+			background: #2563eb;
+			color: #fff;
+			border: none;
+		}
+
+		.filter-btn:hover {
+			background: #1e40af;
+		}
+
+		/* RESET BUTTON (NEUTRAL) */
+		.reset-btn {
+			background: #f1f5f9;
+			color: #374151;
+			border: 1px solid #d1d5db;
+		}
+
+		.reset-btn:hover {
+			background: #e2e8f0;
+		}
+
 		.table {
-			border-radius: 12px;
-			overflow: hidden;
-			background: rgba(255, 255, 255, 0.6);
-			backdrop-filter: blur(6px);
+			background: rgba(255, 255, 255, 0.7);
 		}
 
 		.table thead {
-			background: rgba(224, 231, 255, 0.9);
+			background: rgba(224, 231, 255, 0.95);
 			color: #1e3a8a;
 		}
 
-		.table tbody tr {
-			transition: 0.2s;
-		}
-
-		.table tbody tr:hover {
-			background: rgba(241, 245, 249, 0.7);
-			transform: scale(1.01);
-		}
-
-		/* ===== BADGE ===== */
 		.spec-badge {
-			border-radius: 999px;
-			padding: 6px 14px;
+			border-radius: 50px;
+			padding: 7px 14px;
 			color: #fff;
 			font-size: 13px;
 			display: inline-flex;
 			align-items: center;
 			gap: 6px;
+			font-weight: 600;
 		}
 
-		/* ===== ACTION ICON BUTTONS ===== */
 		.action-btn {
-			width: 35px;
-			height: 35px;
+			width: 36px;
+			height: 36px;
 			border-radius: 50%;
 			display: inline-flex;
 			align-items: center;
 			justify-content: center;
 			border: 1px solid;
 			margin: 2px;
-			transition: 0.2s;
-			background: rgba(255, 255, 255, 0.6);
+			background: rgba(255, 255, 255, 0.7);
 		}
 
 		.edit-btn {
@@ -113,7 +148,7 @@
 
 		.edit-btn:hover {
 			background: #f59e0b;
-			color: white;
+			color: #fff;
 		}
 
 		.delete-btn {
@@ -123,54 +158,47 @@
 
 		.delete-btn:hover {
 			background: #ef4444;
-			color: white;
+			color: #fff;
 		}
 
-		/* ===== PAGINATION ===== */
 		.pagination .page-link {
 			border-radius: 8px;
 			margin: 0 3px;
-			background: rgba(255, 255, 255, 0.7);
+			border: none;
 		}
 
 		.pagination .active .page-link {
 			background: #2563eb;
-			border-color: #2563eb;
 			color: white;
 		}
 	</style>
-
 </head>
 
 <body>
 
-	<!-- HEADER -->
-	<div th:replace="~{fragments/commonui :: header}"></div>
+	<div th:replace="fragments/commonui :: header"></div>
+	<div th:replace="fragments/commonuser :: menu"></div>
 
-	<!-- MENU -->
-	<div th:replace="~{fragments/commonuser :: menu}"></div>
-
-	<div class="container mt-4">
+	<div class="container mt-4 mb-4">
 
 		<div class="glass-card">
 
-			<!-- ===== TITLE ===== -->
+			<!-- HEADER -->
 			<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
 				<div>
 					<h3 class="page-title">Specialization Data</h3>
-					<small class="text-muted">Manage medical specializations</small>
+					<div class="page-subtitle">Manage medical specializations</div>
 				</div>
 
-				<a href="/spec/register" class="btn btn-primary rounded-pill">
+				<a th:href="@{/spec/register}" class="btn btn-primary rounded-pill px-4">
 					<i class="fa fa-plus"></i> Add Specialization
 				</a>
 			</div>
 
-			<!-- ===== TOOLBAR ===== -->
+			<!-- TOOLBAR -->
 			<div class="toolbar">
 
-				<!-- LEFT -->
-				<div>
+				<div class="d-flex gap-2">
 					<a th:href="@{/spec/excel}" class="btn btn-outline-success">
 						<i class="fa fa-file-excel"></i> Excel
 					</a>
@@ -180,84 +208,96 @@
 					</a>
 				</div>
 
-				<!-- RIGHT -->
-				<div class="d-flex gap-2">
+				<form th:action="@{/spec/all}" method="get" class="d-flex align-items-center gap-2">
 
 					<div class="search-wrapper">
-						<i class="fa fa-search"></i>
-						<input type="text" class="form-control search-box" placeholder="Search...">
+						<input type="text" name="keyword" th:value="${keyword}" class="form-control search-box"
+							placeholder="Search specializations...">
 					</div>
 
-					<button class="btn btn-outline-secondary">
+					<button type="submit" class="filter-btn">
 						<i class="fa fa-filter"></i> Filter
 					</button>
 
-				</div>
+					<a th:href="@{/spec/all}" class="reset-btn">
+						<i class="fa fa-rotate-left"></i> Reset
+					</a>
+
+				</form>
 
 			</div>
 
-			<!-- ===== TABLE ===== -->
-			<table class="table table-hover align-middle text-center">
+			<!-- TABLE -->
+			<div class="table-wrapper">
+				<table class="table table-hover text-center align-middle">
 
-				<thead>
-					<tr>
-						<th>ID</th>
-						<th>SPEC CODE</th>
-						<th>SPECIALIZATION</th>
-						<th>SPEC NOTE</th>
-						<th>ACTIONS</th>
-					</tr>
-				</thead>
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th>SPEC CODE</th>
+							<th>SPECIALIZATION</th>
+							<th>SPEC NOTE</th>
+							<th>ACTIONS</th>
+						</tr>
+					</thead>
 
-				<tbody>
+					<tbody>
+						<tr th:if="${list == null or #lists.isEmpty(list)}">
+							<td colspan="5" class="text-muted">No Records Found</td>
+						</tr>
 
-					<tr th:each="ob : ${list}">
-						<td th:text="${ob.id}"></td>
-						<td th:text="${ob.specCode}"></td>
+						<tr th:each="ob : ${list}">
+							<td th:text="${ob.id}"></td>
+							<td th:text="${ob.specCode}"></td>
 
-						<td>
-							<span class="spec-badge" th:style="'background:' + ${ob.color}">
-								<i th:class="${ob.icon}"></i>
-								<span th:text="${ob.specName}"></span>
-							</span>
-						</td>
+							<td>
+								<span class="spec-badge" th:style="'background:' + ${ob.color}">
+									<i th:class="${ob.icon}"></i>
+									<span th:text="${ob.specName}"></span>
+								</span>
+							</td>
 
-						<td th:text="${ob.specNote}"></td>
+							<td th:text="${ob.specNote}"></td>
 
-						<td>
-							<a th:href="@{/spec/edit(id=${ob.id})}" class="action-btn edit-btn" title="Edit">
-								<i class="fa fa-pencil"></i>
-							</a>
+							<td>
+								<a th:href="@{/spec/edit(id=${ob.id})}" class="action-btn edit-btn">
+									<i class="fa fa-pencil"></i>
+								</a>
 
-							<a th:href="@{/spec/delete(id=${ob.id})}" class="action-btn delete-btn" title="Delete">
-								<i class="fa fa-trash"></i>
-							</a>
-						</td>
-					</tr>
+								<a th:href="@{/spec/delete(id=${ob.id})}" class="action-btn delete-btn"
+									onclick="return confirm('Delete this record?');">
+									<i class="fa fa-trash"></i>
+								</a>
+							</td>
+						</tr>
+					</tbody>
 
-				</tbody>
-			</table>
+				</table>
+			</div>
 
-			<!-- ===== PAGINATION ===== -->
-			<nav th:if="${page != null}">
-				<ul class="pagination justify-content-center mt-3">
+			<!-- ✅ PAGINATION -->
+			<nav th:if="${page != null && page.totalPages > 1}">
+				<ul class="pagination justify-content-center mt-4">
 
-					<li class="page-item" th:if="${page.hasPrevious()}">
-						<a class="page-link" th:href="@{/spec/all(page=${page.number-1})}">
+					<!-- PREVIOUS -->
+					<li class="page-item" th:classappend="${!page.hasPrevious()} ? 'disabled'">
+						<a class="page-link" th:href="@{/spec/all(page=${page.number-1}, keyword=${keyword})}">
 							<i class="fa fa-chevron-left"></i>
 						</a>
 					</li>
 
-					<th:block th:each="i : ${#numbers.sequence(0,page.totalPages-1)}">
-						<li class="page-item" th:classappend="${i==page.number}? 'active'">
-							<a class="page-link" th:href="@{/spec/all(page=${i})}">
-								[[${i+1}]]
+					<!-- PAGE NUMBERS -->
+					<th:block th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}">
+						<li class="page-item" th:classappend="${i == page.number} ? 'active'">
+							<a class="page-link" th:href="@{/spec/all(page=${i}, keyword=${keyword})}"
+								th:text="${i + 1}">
 							</a>
 						</li>
 					</th:block>
 
-					<li class="page-item" th:if="${page.hasNext()}">
-						<a class="page-link" th:href="@{/spec/all(page=${page.number+1})}">
+					<!-- NEXT -->
+					<li class="page-item" th:classappend="${!page.hasNext()} ? 'disabled'">
+						<a class="page-link" th:href="@{/spec/all(page=${page.number+1}, keyword=${keyword})}">
 							<i class="fa fa-chevron-right"></i>
 						</a>
 					</li>
@@ -266,7 +306,6 @@
 			</nav>
 
 		</div>
-
 	</div>
 
 </body>

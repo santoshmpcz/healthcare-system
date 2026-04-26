@@ -10,9 +10,9 @@
 
 	<style>
 		body {
-			background: linear-gradient(rgba(13, 110, 253, 0.08),
-					rgba(13, 110, 253, 0.08)),
-				url('/images/AavyaShah.png') no-repeat center center fixed;
+			background: linear-gradient(rgba(13, 110, 253, .08),
+					rgba(13, 110, 253, .08)),
+				url('/images/AavyaShah.png') no-repeat center fixed;
 			background-size: cover;
 			font-family: 'Segoe UI', sans-serif;
 		}
@@ -28,31 +28,33 @@
 			width: 100%;
 		}
 
-		/* GLASS CARD */
 		.card-box {
-			background: rgba(255, 255, 255, 0.25);
+			background: rgba(255, 255, 255, .25);
 			backdrop-filter: blur(14px);
-			-webkit-backdrop-filter: blur(14px);
 			border-radius: 14px;
 			padding: 22px;
-			box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-			border: 1px solid rgba(255, 255, 255, 0.3);
+			box-shadow: 0 8px 25px rgba(0, 0, 0, .1);
+		}
+
+		label {
+			color: #fff;
+			font-size: 12px;
+		}
+
+		.form-control,
+		.form-select {
+			background: transparent !important;
+			color: #fff !important;
+			border: 1px solid rgba(255, 255, 255, .5) !important;
 		}
 
 		.form-control::placeholder {
-			color: rgba(255, 255, 255, 0.8) !important;
+			color: rgba(255, 255, 255, .7);
 		}
 
-		.topbar h2 {
-			font-size: 22px;
-			color: floralwhite;
-			font-weight: 600;
-		}
-
-		.subtitle {
-			font-size: 12px;
-			color: #0d6efd;
-			margin-bottom: 15px;
+		.form-select option {
+			color: black;
+			background: white;
 		}
 
 		.profile-img {
@@ -60,76 +62,26 @@
 			height: 110px;
 			border-radius: 50%;
 			object-fit: cover;
-			border: 3px solid #e9ecef;
 			cursor: pointer;
-		}
-
-		.upload-btn {
-			font-size: 12px;
-			color: #fff;
-			cursor: pointer;
+			border: 3px solid #fff;
 		}
 
 		.section-title {
+			color: #fff;
 			font-size: 13px;
 			font-weight: 600;
 			margin-top: 18px;
-			margin-bottom: 6px;
-			color: #fff;
-		}
-
-		label {
-			font-size: 11px;
-			margin-bottom: 2px;
-			color: #fff;
-		}
-
-		/* ✅ FULL TRANSPARENT INPUT FIX */
-		.form-control,
-		.form-select {
-			background: transparent !important;
-			color: #fff !important;
-			border: 1px solid rgba(255, 255, 255, 0.5) !important;
-			backdrop-filter: blur(6px);
-			border-radius: 6px;
-			font-size: 12px;
-			padding: 6px 8px;
-		}
-
-		/* ✅ PLACEHOLDER WHITE */
-		.form-control::placeholder {
-			color: rgba(255, 255, 255, 0.7);
-		}
-
-		/* ✅ REMOVE BOOTSTRAP WHITE BG ON FOCUS */
-		.form-control:focus,
-		.form-select:focus {
-			background: transparent !important;
-			color: #fff !important;
-			border-color: #fff;
-			box-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
-		}
-
-		/* ✅ AUTOFILL FIX (IMPORTANT) */
-		input:-webkit-autofill,
-		input:-webkit-autofill:hover,
-		input:-webkit-autofill:focus {
-			-webkit-text-fill-color: #fff !important;
-			transition: background-color 5000s ease-in-out 0s;
-			box-shadow: 0 0 0px 1000px transparent inset !important;
-		}
-
-		/* ✅ SELECT DROPDOWN */
-		.form-select option {
-			color: black;
-			background: white;
 		}
 
 		.footer-btn {
 			display: flex;
 			justify-content: flex-end;
 			gap: 8px;
-			margin-top: 18px;
+			margin-top: 20px;
+		}
+
+		.subtitle {
+			color: #0d6efd;
 		}
 	</style>
 </head>
@@ -142,67 +94,72 @@
 	<div class="main">
 		<div class="content-wrapper">
 
-			<div class="topbar">
-				<h2><i class="fas fa-user-md"></i> Doctor Edit</h2>
-				<div class="subtitle">Update doctor information</div>
-			</div>
+			<h3 class="text-white">
+				<i class="fas fa-user-md"></i> Doctor Edit
+			</h3>
+
+			<div class="subtitle">Update doctor information</div>
 
 			<div class="card-box">
 
 				<form th:action="@{/doctor/update}" th:object="${doctor}" method="post" enctype="multipart/form-data">
 
-					<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 					<input type="hidden" th:field="*{id}">
 					<input type="hidden" th:field="*{doctorCode}">
-					<input type="hidden" th:field="*{photo}">
+					<input type="hidden" th:field="*{imageUrl}">
 
-					<!-- PROFILE -->
+					<!-- ================= IMAGE ================= -->
+
 					<div class="text-center mb-3">
+
 						<label for="fileInput">
-							<img id="previewImg"
-								th:src="${doctor.photo != null and doctor.photo != ''} ? @{/doctor-images/{img}(img=${doctor.photo})} : @{/images/no-image.png}"
-								class="profile-img" onerror="this.src='/images/no-image.png'">
+
+							<img id="previewImg" class="profile-img" th:src="${doctor.imageUrl != null and !#strings.isEmpty(doctor.imageUrl)}
+	           ? ${doctor.imageUrl}
+	           : @{/images/no-image.png}" onerror="this.src='/images/no-image.png'">
+
 						</label>
 
-						<div style="color:#fff;" th:text="*{firstName} + ' ' + *{lastName}"></div>
+						<div class="text-white" th:text="*{firstName} + ' ' + *{lastName}">
+						</div>
 
-						<label for="fileInput" class="upload-btn">
+						<label class="text-white mt-1" for="fileInput">
 							<i class="fa fa-camera"></i> Change Photo
 						</label>
 
 						<input type="file" id="fileInput" name="file" hidden onchange="previewImage(event)">
+
 					</div>
 
-					<!-- PERSONAL -->
+					<!-- ================= PERSONAL ================= -->
+
 					<div class="section-title">Personal</div>
+
 					<div class="row g-2">
 
 						<div class="col-md-4">
 							<label>First Name</label>
-							<input type="text" placeholder="Enter first name" th:field="*{firstName}"
-								class="form-control">
+							<input th:field="*{firstName}" class="form-control">
 						</div>
 
 						<div class="col-md-4">
 							<label>Middle Name</label>
-							<input type="text" placeholder="Enter middle name" th:field="*{middleName}"
-								class="form-control">
+							<input th:field="*{middleName}" class="form-control">
 						</div>
 
 						<div class="col-md-4">
 							<label>Last Name</label>
-							<input type="text" placeholder="Enter last name" th:field="*{lastName}"
-								class="form-control">
+							<input th:field="*{lastName}" class="form-control">
 						</div>
 
 						<div class="col-md-4">
 							<label>Email</label>
-							<input type="email" placeholder="Enter email" th:field="*{email}" class="form-control">
+							<input type="email" th:field="*{email}" class="form-control">
 						</div>
 
 						<div class="col-md-4">
 							<label>Mobile</label>
-							<input type="text" placeholder="Enter mobile" th:field="*{mobile}" class="form-control">
+							<input th:field="*{mobile}" class="form-control">
 						</div>
 
 						<div class="col-md-4">
@@ -216,89 +173,97 @@
 
 					</div>
 
-					<!-- PROFESSIONAL -->
+					<!-- ================= PROFESSIONAL ================= -->
+
 					<div class="section-title">Professional</div>
+
 					<div class="row g-2">
 
 						<div class="col-md-4">
 							<label>Room No</label>
-							<input type="number" placeholder="Room no" th:field="*{roomNo}" class="form-control">
+							<input type="number" th:field="*{roomNo}" class="form-control">
 						</div>
 
 						<div class="col-md-4">
 							<label>Experience</label>
-							<input type="number" placeholder="Years" th:field="*{experience}" class="form-control">
+							<input type="number" th:field="*{experience}" class="form-control">
 						</div>
 
 						<div class="col-md-4">
 							<label>Degree</label>
-							<input type="text" placeholder="Degree" th:field="*{degree}" class="form-control">
+							<input th:field="*{degree}" class="form-control">
 						</div>
 
 						<div class="col-md-4">
 							<label>Salary</label>
-							<input type="number" placeholder="Salary" th:field="*{salary}" class="form-control">
+							<input type="number" th:field="*{salary}" class="form-control">
 						</div>
 
+						<!-- ✅ SPECIALIZATION FIX -->
 						<div class="col-md-4">
 							<label>Specialization</label>
+
 							<select th:field="*{specializationId}" class="form-select">
-								<option value="">Select</option>
+
+								<option value="">-- Select Specialization --</option>
+
 								<option th:each="sp : ${specList}" th:value="${sp.id}" th:text="${sp.specName}">
 								</option>
+
 							</select>
 						</div>
 
 						<div class="col-md-4">
 							<label>Note</label>
-							<input type="text" placeholder="Notes" th:field="*{note}" class="form-control">
+							<input th:field="*{note}" class="form-control">
 						</div>
 
 					</div>
 
-					<!-- ADDRESS -->
+					<!-- ================= ADDRESS ================= -->
+
 					<div class="section-title">Address</div>
+
 					<div class="row g-2">
 
 						<div class="col-md-4">
 							<label>Block</label>
-							<input type="text" placeholder="Block" th:field="*{block}" class="form-control">
+							<input th:field="*{block}" class="form-control">
 						</div>
 
 						<div class="col-md-4">
 							<label>District</label>
-							<input type="text" placeholder="District" th:field="*{district}" class="form-control">
+							<input th:field="*{district}" class="form-control">
 						</div>
 
 						<div class="col-md-4">
 							<label>Country</label>
-							<input type="text" placeholder="Country" th:field="*{country}" class="form-control">
+							<input th:field="*{country}" class="form-control">
 						</div>
 
 						<div class="col-md-4">
 							<label>Address</label>
-							<input type="text" placeholder="Address" th:field="*{address}" class="form-control">
+							<input th:field="*{address}" class="form-control">
 						</div>
 
 						<div class="col-md-4">
 							<label>Hobbies</label>
-							<input type="text" placeholder="Hobbies" th:field="*{hobbies}" class="form-control">
+							<input th:field="*{hobbies}" class="form-control">
 						</div>
 
 						<div class="col-md-4">
 							<label>Nationality</label>
-							<input type="text" placeholder="Nationality" th:field="*{nationality}" class="form-control">
+							<input th:field="*{nationality}" class="form-control">
 						</div>
 
 					</div>
 
 					<div class="footer-btn">
 						<a th:href="@{/doctor/all}" class="btn btn-outline-light btn-sm">Cancel</a>
-						<button type="submit" class="btn btn-primary btn-sm">Update</button>
+						<button class="btn btn-primary btn-sm">Update</button>
 					</div>
 
 				</form>
-
 			</div>
 		</div>
 	</div>
@@ -310,7 +275,7 @@
 
 			const reader = new FileReader();
 			reader.onload = function () {
-				document.getElementById('previewImg').src = reader.result;
+				document.getElementById("previewImg").src = reader.result;
 			}
 			reader.readAsDataURL(file);
 		}

@@ -51,10 +51,8 @@ public class DoctorServiceImpl implements DoctorService {
 			throw new IllegalArgumentException("Doctor data must not be null");
 		}
 
-		// ✅ EMAIL DUPLICATE CHECK
-		if (hasText(dto.getEmail()) && doctorRepository.findByEmail(dto.getEmail().trim().toLowerCase()).isPresent()) {
-			throw new RuntimeException("Email already exists");
-		}
+		String email = normalize(dto.getEmail());
+		validateEmail(email, null);
 
 		Doctor doctor = DoctorMapper.toEntity(dto);
 		doctor.setDoctorCode(null);
@@ -65,7 +63,6 @@ public class DoctorServiceImpl implements DoctorService {
 
 		Doctor savedDoctor = doctorRepository.save(doctor);
 
-		// ✅ Generate doctor code
 		if (!hasText(savedDoctor.getDoctorCode())) {
 			String docCode = "DOC-" + String.format("%04d", savedDoctor.getId());
 			savedDoctor.setDoctorCode(docCode);
@@ -84,6 +81,9 @@ public class DoctorServiceImpl implements DoctorService {
 		Doctor doctor = doctorRepository.findById(id)
 				.orElseThrow(() -> new DoctorNotFoundException("Doctor not found with ID: " + id));
 
+		String email = normalize(dto.getEmail());
+		validateEmail(email, id);
+
 		updateDoctorFields(doctor, dto);
 
 		return DoctorMapper.toDTO(doctorRepository.save(doctor));
@@ -92,7 +92,6 @@ public class DoctorServiceImpl implements DoctorService {
 	// ================= DELETE =================
 	@Override
 	public boolean deleteDoctor(Long id) {
-
 		return doctorRepository.findById(id).map(d -> {
 			doctorRepository.delete(d);
 			return true;
@@ -117,23 +116,28 @@ public class DoctorServiceImpl implements DoctorService {
 		return doctorRepository.findAll().stream().map(DoctorMapper::toDTO).toList();
 	}
 
-	// ================= SEARCH =================
+	// ================= SEARCH (🔥 HYBRID FIXED) =================
 	@Override
 	@Transactional(readOnly = true)
 	public Page<DoctorDTO> searchDoctors(DoctorDTO filter, Pageable pageable) {
 
+		// ✅ GLOBAL KEYWORD (HYBRID SEARCH)
+		if (filter != null) {
+
+			String keyword = normalize(filter.getFirstName()); // using firstName as search box
+
+			if (hasText(keyword)) {
+				return doctorRepository.searchDoctor(keyword, pageable).map(DoctorMapper::toDTO);
+			}
+		}
+
+		// ✅ SPECIFICATION FILTERS
 		Specification<Doctor> spec = Specification.where(null);
 
 		if (filter != null) {
 
 			if (filter.getSpecializationId() != null) {
 				spec = spec.and(DoctorSpecification.hasSpecialization(filter.getSpecializationId()));
-			}
-
-			if (hasText(filter.getFirstName())) {
-				String name = normalize(filter.getFirstName());
-				spec = spec.and(Specification.where(DoctorSpecification.hasFirstName(name))
-						.or(DoctorSpecification.hasLastName(name)));
 			}
 
 			if (filter.getExperience() != null) {
@@ -172,14 +176,28 @@ public class DoctorServiceImpl implements DoctorService {
 	@Override
 	public Optional<DoctorDTO> getDoctorByEmail(String email) {
 
-		if (!hasText(email)) {
+		String normalizedEmail = normalize(email);
+
+		if (!hasText(normalizedEmail)) {
 			return Optional.empty();
 		}
 
-		return doctorRepository.findByEmail(email.trim().toLowerCase()).map(DoctorMapper::toDTO);
+		return doctorRepository.findByEmail(normalizedEmail).map(DoctorMapper::toDTO);
 	}
 
 	// ================= PRIVATE METHODS =================
+
+	private void validateEmail(String email, Long id) {
+
+		if (!hasText(email))
+			return;
+
+		Optional<Doctor> existing = doctorRepository.findByEmail(email);
+
+		if (existing.isPresent() && (id == null || !existing.get().getId().equals(id))) {
+			throw new RuntimeException("Email already exists");
+		}
+	}
 
 	private Specialization getSpecialization(Long id) {
 		return specializationRepository.findById(id)
@@ -191,14 +209,13 @@ public class DoctorServiceImpl implements DoctorService {
 		if (!hasText(doctor.getEmail()))
 			return;
 
-		String email = doctor.getEmail().trim().toLowerCase();
+		String email = normalize(doctor.getEmail());
 
 		if (userService.findByUsername(email).isPresent())
 			return;
 
 		String rawPassword = userUtil.genPwd();
 
-		// ✅ FIXED FULL NAME
 		String fullName = ((doctor.getFirstName() != null ? doctor.getFirstName() : "") + " "
 				+ (doctor.getLastName() != null ? doctor.getLastName() : "")).trim();
 
@@ -220,14 +237,9 @@ public class DoctorServiceImpl implements DoctorService {
 
 			String safeName = (name != null && !name.trim().isEmpty()) ? name : "User";
 
-			String text = "<div style='font-family: Arial, sans-serif;'>"
-					+ "<h2 style='color:#2c3e50;'>Doctor Account Created</h2>" + "<p>Dear " + safeName + ",</p>"
-					+ "<p>Your account has been created successfully.</p>" + "<p><b>Username:</b> " + email + "</p>"
-					+ "<p><b>Password:</b> " + password + "</p>" + "<br>"
-					+ "<p style='color:#e74c3c;'><b>Important:</b> Please change your password after login.</p>"
-					+ "<br>" + "<p>Regards,<br><b>Santosh Hospital Team</b></p>" + "</div>";
-
-			log.info("Doctor account email triggered for: {}", email);
+			String text = "<div style='font-family: Arial;'>" + "<h2>Doctor Account Created</h2>" + "<p>Dear "
+					+ safeName + ",</p>" + "<p>Username: " + email + "</p>" + "<p>Password: " + password + "</p>"
+					+ "<p>Please change your password after login.</p>" + "</div>";
 
 			mailUtil.send(email, "DOCTOR ACCOUNT CREATED", text);
 
@@ -240,57 +252,41 @@ public class DoctorServiceImpl implements DoctorService {
 
 		if (dto.getFirstName() != null)
 			doctor.setFirstName(dto.getFirstName());
-
 		if (dto.getMiddleName() != null)
 			doctor.setMiddleName(dto.getMiddleName());
-
 		if (dto.getLastName() != null)
 			doctor.setLastName(dto.getLastName());
-
 		if (dto.getEmail() != null)
-			doctor.setEmail(dto.getEmail().trim().toLowerCase());
-
+			doctor.setEmail(normalize(dto.getEmail()));
 		if (dto.getMobile() != null)
 			doctor.setMobile(dto.getMobile());
-
 		if (dto.getRoomNo() != null)
 			doctor.setRoomNo(dto.getRoomNo());
-
 		if (dto.getExperience() != null)
 			doctor.setExperience(dto.getExperience());
-
 		if (dto.getAddress() != null)
 			doctor.setAddress(dto.getAddress());
-
 		if (dto.getHobbies() != null)
 			doctor.setHobbies(dto.getHobbies());
-
 		if (dto.getSalary() != null)
 			doctor.setSalary(dto.getSalary());
-
 		if (dto.getDegree() != null)
 			doctor.setDegree(dto.getDegree());
-
 		if (dto.getGender() != null)
 			doctor.setGender(dto.getGender());
-
 		if (dto.getBlock() != null)
 			doctor.setBlock(dto.getBlock());
-
 		if (dto.getDistrict() != null)
 			doctor.setDistrict(dto.getDistrict());
-
 		if (dto.getCountry() != null)
 			doctor.setCountry(dto.getCountry());
-
 		if (dto.getNationality() != null)
 			doctor.setNationality(dto.getNationality());
-
 		if (dto.getNote() != null)
 			doctor.setNote(dto.getNote());
 
-		if (hasText(dto.getPhoto())) {
-			doctor.setPhoto(dto.getPhoto());
+		if (hasText(dto.getImageUrl())) {
+			doctor.setImageUrl(dto.getImageUrl());
 		}
 
 		if (dto.getSpecializationId() != null) {
@@ -303,6 +299,7 @@ public class DoctorServiceImpl implements DoctorService {
 	}
 
 	private String normalize(String val) {
-		return hasText(val) ? val.trim().toLowerCase() : "";
+		return hasText(val) ? val.trim().toLowerCase() : null;
 	}
+
 }

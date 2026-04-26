@@ -140,4 +140,11 @@ public class SpecializationServiceImpl implements SpecializationService {
 				// Auto color fallback
 				.color(SpecializationMetaUtil.resolveColor(spec.getSpecName(), spec.getColor())).build();
 	}
+
+	@Override
+	public Page<SpecializationDTO> searchSpecializations(String keyword, Pageable pageable) {
+		Page<Specialization> page = repo.search(keyword, pageable);
+
+		return page.map(this::convertToDTO);
+	}
 }
